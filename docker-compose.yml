@@ -1,0 +1,10 @@
+version: '3.1'
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_DB: speurtocht
+      POSTGRES_USER: indicium
+      POSTGRES_PASSWORD: kaasbroodje
+    ports:
+      - "5432:5432"
