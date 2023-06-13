@@ -15,7 +15,7 @@ public class TeamController {
 
 	private TeamService service;
 
-	@GetMapping
+	@GetMapping("/leaderboard")
 	public List<Team> leaderboard() {
 		return this.service.getAll();
 	}

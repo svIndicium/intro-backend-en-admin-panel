@@ -26,13 +26,13 @@ public class StartUp implements CommandLineRunner {
 //			PictureSubmission submission = this.pictureService.createSubmission(team, picture, null);
 
 //			System.out.println(submission);
-			System.out.println(picture);
+//			System.out.println(picture);
 
 		}
 
 		for (int i = 0; i < 88; i++) {
 			Challenge challenge = this.challengeService.save("hello world", 30);
-			System.out.println(challenge);
+//			System.out.println(challenge);
 		}
 	}
 }

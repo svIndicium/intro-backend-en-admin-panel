@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import hu.indicium.speurtocht.domain.Team;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -17,7 +18,7 @@ public class TeamService {
 		return repository.save(new Team(name));
 	}
 
-	public Team getTeam(String id) {
+	public Team getTeam(UUID id) {
 		return this.repository.getReferenceById(id);
 	}
 
