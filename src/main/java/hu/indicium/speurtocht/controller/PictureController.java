@@ -5,11 +5,14 @@ import hu.indicium.speurtocht.domain.SubmissionState;
 import hu.indicium.speurtocht.security.AuthUtils;
 import hu.indicium.speurtocht.service.PictureService;
 import hu.indicium.speurtocht.service.TeamService;
+import hu.indicium.speurtocht.service.exceptions.AlreadyApprovedException;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -26,7 +29,6 @@ public class PictureController {
 	private AuthUtils authUtils;
 
 	private PictureService pictureService;
-	private TeamService teamService;
 
 	@GetMapping
 	public Map<Long, List<SubmissionState>> getTeamPictures() {
@@ -43,6 +45,8 @@ public class PictureController {
 			);
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (AlreadyApprovedException e) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 		}
 	}
 }

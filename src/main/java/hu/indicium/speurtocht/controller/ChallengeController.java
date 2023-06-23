@@ -5,11 +5,14 @@ import hu.indicium.speurtocht.security.AuthUtils;
 import hu.indicium.speurtocht.service.ChallengeService;
 import hu.indicium.speurtocht.service.PictureService;
 import hu.indicium.speurtocht.service.TeamService;
+import hu.indicium.speurtocht.service.exceptions.AlreadyApprovedException;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.List;
@@ -40,6 +43,8 @@ public class ChallengeController {
 			);
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (AlreadyApprovedException e) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 		}
 	}
 }

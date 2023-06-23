@@ -3,6 +3,7 @@ package hu.indicium.speurtocht.service;
 import hu.indicium.speurtocht.domain.*;
 import hu.indicium.speurtocht.repository.PictureRepository;
 import hu.indicium.speurtocht.repository.PictureSubmissionRepository;
+import hu.indicium.speurtocht.service.exceptions.AlreadyApprovedException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.val;
@@ -30,8 +31,13 @@ public class PictureService {
 		return this.repository.getReferenceById(id);
 	}
 
-	public PictureSubmission createSubmission(Team team, Picture picture, MultipartFile file) throws IOException {
+	public PictureSubmission createSubmission(Team team, Picture picture, MultipartFile file) throws IOException, AlreadyApprovedException {
+		if (this.submissionRepository.existsByTeamAndPictureAndStatus(team, picture, SubmissionState.APPROVED)) throw new AlreadyApprovedException();
 		return this.submissionRepository.save(new PictureSubmission(team, picture, file));
+	}
+
+	public long getTeamPoints(Team team) {
+		return this.submissionRepository.countByTeamAndStatus(team, SubmissionState.APPROVED);
 	}
 
 	@Transactional

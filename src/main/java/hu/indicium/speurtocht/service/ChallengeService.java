@@ -3,6 +3,7 @@ package hu.indicium.speurtocht.service;
 import hu.indicium.speurtocht.domain.*;
 import hu.indicium.speurtocht.repository.ChallengeRepository;
 import hu.indicium.speurtocht.repository.ChallengeSubmissionRepository;
+import hu.indicium.speurtocht.service.exceptions.AlreadyApprovedException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.LongAccumulator;
 
 @Service
 @AllArgsConstructor
@@ -27,7 +29,13 @@ public class ChallengeService {
 	public Challenge getChallenge(Long id) {
 		return this.repository.getReferenceById(id);
 	}
-	public ChallengeSubmission createSubmission(Team team, Challenge challenge, MultipartFile file) throws IOException {
+
+	public long getTeamPoints(Team team) {
+		return this.submissionRepository.findByTeamAndStatus(team, SubmissionState.APPROVED).stream().map(e -> e.getChallenge().getPoints()).reduce(0, Integer::sum);
+	}
+
+	public ChallengeSubmission createSubmission(Team team, Challenge challenge, MultipartFile file) throws IOException, AlreadyApprovedException {
+		if (this.submissionRepository.existsByTeamAndChallengeAndStatus(team, challenge, SubmissionState.APPROVED)) throw new AlreadyApprovedException();
 		return this.submissionRepository.save(new ChallengeSubmission(team, challenge, file));
 	}
 
