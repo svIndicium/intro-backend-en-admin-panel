@@ -6,4 +6,6 @@ import hu.indicium.speurtocht.domain.Team;
 import java.util.UUID;
 
 public interface TeamRepository extends JpaRepository<Team, UUID> {
+	Team findByName(String name);
+
 }

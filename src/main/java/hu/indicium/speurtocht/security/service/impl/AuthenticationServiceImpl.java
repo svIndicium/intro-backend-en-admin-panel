@@ -1,5 +1,6 @@
 package hu.indicium.speurtocht.security.service.impl;
 
+import hu.indicium.speurtocht.domain.Team;
 import hu.indicium.speurtocht.security.controller.AuthenticationResponse;
 import hu.indicium.speurtocht.security.domain.User;
 import hu.indicium.speurtocht.security.repository.UserRepository;
@@ -21,8 +22,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	private final AuthenticationManager authenticationManager;
 
 	@Override
-	public AuthenticationResponse createUser(String teamname, String password) {
-		return null;
+	public AuthenticationResponse createUser(Team team, String password) {
+		var user = User.createParticipant(team, passwordEncoder.encode(password));
+		userRepository.save(user);
+		var jwt = jwtService.generateToken(user);
+
+		return new AuthenticationResponse(jwt);
 	}
 
 	@Override
@@ -41,6 +46,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		var user = userRepository.findByUsername(username)
 				.orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
 
+		Team team = user.getTeam();
 		var jwt = jwtService.generateToken(user);
 
 		return new AuthenticationResponse(jwt);

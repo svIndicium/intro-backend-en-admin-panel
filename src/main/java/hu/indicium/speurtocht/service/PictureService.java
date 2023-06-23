@@ -52,9 +52,5 @@ public class PictureService {
 		}
 
 		return output;
-
-
-
-
 	}
 }

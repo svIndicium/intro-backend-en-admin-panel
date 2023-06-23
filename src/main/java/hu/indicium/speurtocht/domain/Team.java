@@ -1,8 +1,6 @@
 package hu.indicium.speurtocht.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.UUID;
@@ -18,6 +16,7 @@ public class Team {
 	@GeneratedValue
 	private UUID id;
 
+	@Column(unique = true)
 	private String name;
 
 	public Team(String name) {

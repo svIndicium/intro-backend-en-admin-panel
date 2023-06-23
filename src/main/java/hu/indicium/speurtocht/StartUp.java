@@ -19,18 +19,22 @@ public class StartUp implements CommandLineRunner {
 	private TeamService teamService;
 	private PictureService pictureService;
 	private ChallengeService challengeService;
-	private UserRepository userRepository;
 
 	private AuthenticationServiceImpl authenticationService;
 
 	@Override
 	public void run(String... args) throws Exception {
-		Team team = this.teamService.save("team-1");
+		if (this.teamService.getAll().size() == 0) {
+			Team team = this.teamService.save("team-1");
+			authenticationService.createUser(team, "password");
+		}
 
-		authenticationService.createAdmin("team-1", "password");
+
+
+		authenticationService.createAdmin("admin", "admin");
 
 //		User user = this.userRepository.save(User.createParticipant(team, new BCryptPasswordEncoder().encode("password")));
-		System.out.println(team);
+//		System.out.println(team);
 //		System.out.println(user);
 
 		for (int i = 0; i < 25; i++) {
