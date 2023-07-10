@@ -31,6 +31,10 @@ public class PictureService {
 		return this.repository.getReferenceById(id);
 	}
 
+	public List<Picture> getAll() {
+		return this.repository.findAll();
+	}
+
 	public PictureSubmission createSubmission(Team team, Picture picture, MultipartFile file) throws IOException, AlreadyApprovedException {
 		if (this.submissionRepository.existsByTeamAndPictureAndStatus(team, picture, SubmissionState.APPROVED)) throw new AlreadyApprovedException();
 		return this.submissionRepository.save(new PictureSubmission(team, picture, file));

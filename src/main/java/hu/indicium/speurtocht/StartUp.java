@@ -30,7 +30,6 @@ public class StartUp implements CommandLineRunner {
 		}
 
 
-
 		authenticationService.createAdmin("admin", "admin");
 
 //		User user = this.userRepository.save(User.createParticipant(team, new BCryptPasswordEncoder().encode("password")));

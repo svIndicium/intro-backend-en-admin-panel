@@ -1,5 +1,6 @@
 package hu.indicium.speurtocht.controller;
 
+import hu.indicium.speurtocht.domain.Picture;
 import hu.indicium.speurtocht.domain.PictureSubmission;
 import hu.indicium.speurtocht.domain.SubmissionState;
 import hu.indicium.speurtocht.security.AuthUtils;
@@ -30,7 +31,17 @@ public class PictureController {
 
 	private PictureService pictureService;
 
+	@PostMapping
+	public void createPictures() {
+		// todo upload all pictures
+	}
+
 	@GetMapping
+	public List<Long> pictures() {
+		return this.pictureService.getAll().stream().map(Picture::getId).toList();
+	}
+
+	@GetMapping("/team")
 	public Map<Long, List<SubmissionState>> getTeamPictures() {
 		return this.pictureService.getTeamsPictures(authUtils.getTeam());
 	}

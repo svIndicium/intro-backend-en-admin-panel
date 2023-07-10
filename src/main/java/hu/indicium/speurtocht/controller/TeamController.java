@@ -1,6 +1,8 @@
 package hu.indicium.speurtocht.controller;
 
+import hu.indicium.speurtocht.controller.dto.CreateTeamDTO;
 import hu.indicium.speurtocht.controller.dto.LeaderboardDTO;
+import hu.indicium.speurtocht.security.service.impl.AuthenticationServiceImpl;
 import hu.indicium.speurtocht.service.ChallengeService;
 import hu.indicium.speurtocht.service.PictureService;
 import hu.indicium.speurtocht.service.TeamService;
@@ -20,6 +22,7 @@ public class TeamController {
 	private TeamService service;
 	private PictureService pictureService;
 	private ChallengeService challengeService;
+	private AuthenticationServiceImpl authenticationService;
 
 	@GetMapping("/leaderboard")
 	public List<LeaderboardDTO> leaderboard() {
@@ -35,16 +38,17 @@ public class TeamController {
 
 		@Override
 		public int compare(LeaderboardDTO o1, LeaderboardDTO o2) {
-			if (o1.ChallengePoints() == o2.ChallengePoints()) {
+			if (o1.challengePoints() == o2.challengePoints()) {
 				return (int) (o2.picturesApproved() - o1.picturesApproved());
 			} else {
-				return (int) (o2.ChallengePoints() - o1.ChallengePoints());
+				return (int) (o2.challengePoints() - o1.challengePoints());
 			}
 		}
 	}
 
-	@PostMapping("/{name}")
-	public Team createNewTeam(@PathVariable String name) {
-		return service.save(name);
+	@PostMapping
+	public void createNewTeam(@RequestBody CreateTeamDTO teamDTO) {
+		Team team = this.service.save(teamDTO.teamname());
+		authenticationService.createUser(team, teamDTO.password());
 	}
 }

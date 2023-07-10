@@ -26,6 +26,10 @@ public class ChallengeService {
 		return this.repository.save(new Challenge(challenge, points));
 	}
 
+	public List<Challenge> createBulk(List<Challenge> challenges) {
+		return this.repository.saveAll(challenges);
+	}
+
 	public Challenge getChallenge(Long id) {
 		return this.repository.getReferenceById(id);
 	}
@@ -39,8 +43,12 @@ public class ChallengeService {
 		return this.submissionRepository.save(new ChallengeSubmission(team, challenge, file));
 	}
 
+	public List<Challenge> getAll() {
+		return this.repository.findAll();
+	}
+
 	@Transactional
-	public HashMap<Long, List<SubmissionState>> getTeamsPictures(Team team) {
+	public HashMap<Long, List<SubmissionState>> getTeamChallenges(Team team) {
 		List<Challenge> challenges = this.repository.findAll();
 		HashMap<Long, List<SubmissionState>> output = new HashMap<>(challenges.size());
 		List<ChallengeSubmission> submissions = this.submissionRepository.findByTeam(team);

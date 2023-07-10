@@ -1,20 +1,37 @@
-export function fetchJsonWithAuth<T>(url, data): Promise<T> {
-    return fetch(
-        url,
-        {
-            headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("accessToken") },
-            body: data
-        })
-        .then<T>((e) => e.json())
+export function fetchJsonWithAuth<T>(url: string, data?: any): Promise<T> {
+    return data
+        ? fetch(
+            url,
+            {
+                headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("accessToken") },
+                body: data
+            })
+            .then<T>((e) => e.json())
+        : fetch(
+            url,
+            {
+                headers: { "Authorization": "Bearer " + localStorage.getItem("accessToken") },
+            })
+            .then<T>((e) => e.json())
 }
 
-export function fetchWithAuth<T>(url): Promise<T> {
+export function fetchWithAuth(url: string): Promise<any> {
     return fetch(
         url,
         {
             headers: {"Authorization": "Bearer " + localStorage.getItem("accessToken") },
         })
-        .then<T>((e) => e.json())
+
 }
 
-export default { fetchJsonWithAuth, fetchWithAuth }
+export function sendForm(url: string, formdata: HTMLFormElement, method: string): Promise<any> {
+    const entries = new FormData(formdata).entries();
+    const data = Object.fromEntries(entries);
+    return fetch(
+        url,
+        {
+            method,
+            headers: {"Authorization": "Bearer " + localStorage.getItem("accessToken"), "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        })
+}

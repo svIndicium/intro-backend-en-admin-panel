@@ -1,4 +1,4 @@
 package hu.indicium.speurtocht.controller.dto;
 
-public record LeaderboardDTO(String teamname, long ChallengePoints, long picturesApproved) {
+public record LeaderboardDTO(String teamname, long challengePoints, long picturesApproved) {
 }

@@ -1,10 +1,9 @@
 package hu.indicium.speurtocht.controller;
 
+import hu.indicium.speurtocht.domain.Challenge;
 import hu.indicium.speurtocht.domain.SubmissionState;
 import hu.indicium.speurtocht.security.AuthUtils;
 import hu.indicium.speurtocht.service.ChallengeService;
-import hu.indicium.speurtocht.service.PictureService;
-import hu.indicium.speurtocht.service.TeamService;
 import hu.indicium.speurtocht.service.exceptions.AlreadyApprovedException;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +27,19 @@ public class ChallengeController {
 
 	private ChallengeService challengeService;
 
+	@PostMapping
+	public void createChallenges(@RequestBody List<String> challenges) {
+		this.challengeService.createBulk(challenges.stream().map(s -> new Challenge(s, 30)).toList());
+	}
+
 	@GetMapping
-	public Map<Long, List<SubmissionState>> getTeamPictures() {
-		return this.challengeService.getTeamsPictures(authUtils.getTeam());
+	public List<String> pictures() {
+		return this.challengeService.getAll().stream().map(Challenge::getChallenge).toList();
+	}
+
+	@GetMapping("/team")
+	public Map<Long, List<SubmissionState>> getTeamChallenges() {
+		return this.challengeService.getTeamChallenges(authUtils.getTeam());
 	}
 
 	@PostMapping(value = "/{challengeId}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
