@@ -35,3 +35,13 @@ export function sendForm(url: string, formdata: HTMLFormElement, method: string)
             body: JSON.stringify(data)
         })
 }
+
+export function sendJson(url: string, data: any, method: string): Promise<any> {
+    return fetch(
+        url,
+        {
+            method,
+            headers: {"Authorization": "Bearer " + localStorage.getItem("accessToken"), "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        })
+}

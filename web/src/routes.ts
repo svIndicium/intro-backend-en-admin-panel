@@ -7,6 +7,8 @@ import Leaderboard from "./pages/Leaderboard.vue";
 import {RouteRecordRaw} from "vue-router";
 import CreateTeam from "./pages/admin/CreateTeam.vue";
 import Submission from "./pages/admin/Submission.vue";
+import CreateChallenges from "./pages/admin/CreateChallenges.vue";
+import CreatePictures from "./pages/admin/createPictures.vue";
 
 const routes: RouteRecordRaw[] = [
     { path: '/', component: Home },
@@ -20,6 +22,8 @@ const routes: RouteRecordRaw[] = [
             { path: 'home', component: AdminHome},
             { path: 'team', component: CreateTeam},
             { path: 'submission/:id', component: Submission},
+            { path: 'challenges', component: CreateChallenges },
+            { path: 'pictures', component: CreatePictures },
         ]
     }
 ]

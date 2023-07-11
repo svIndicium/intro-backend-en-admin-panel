@@ -3,8 +3,8 @@ import {fetchJsonWithAuth} from "../../lib/fetcher";
   import {onBeforeUnmount, ref} from "vue";
 
   const submissions = ref<{ id: string, teamName: string, type: string }[]>([])
-  const challenges = ref<string[]>([])
-  fetchJsonWithAuth<string[]>("/api/challenges")
+  const challenges = ref<{ id: string, challenge: string, points: number}[]>([])
+  fetchJsonWithAuth<{ id: string, challenge: string, points: number}[]>("/api/challenges")
       .then(e => challenges.value = e)
 
   const leaderboard = ref<{teamname: string, challengePoints: number, picturesApproved: number}[]>([])
@@ -41,16 +41,16 @@ import {fetchJsonWithAuth} from "../../lib/fetcher";
       </table>
     </div>
     <div class="picture-grid">
-      <div class="image-container" v-for="x in 25">
-        <img :src="`/nature-${(x % 4) + 1}.jpg`" alt=""/>
-      </div>
+        <router-link to="/admin/pictures" class="image-container" v-for="x in 25">
+          <img :src="`/nature-${(x % 4) + 1}.jpg`" alt=""/>
+      </router-link>
+
 
     </div>
     <div>
       <router-link to="/admin/challenges">create challenges</router-link>
       <ol>
-        <li v-for="(challenge, index) in 88">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque eget lacus sapien. Aliquam a aliquet.</li>
+        <li v-for="(challenge, index) in challenges">{{challenge.challenge}}:{{challenge.points}} points</li>
       </ol>
 
     </div>

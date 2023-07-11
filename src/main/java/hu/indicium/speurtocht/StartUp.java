@@ -12,6 +12,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 @Component
 @AllArgsConstructor
 public class StartUp implements CommandLineRunner {
@@ -36,18 +38,32 @@ public class StartUp implements CommandLineRunner {
 //		System.out.println(team);
 //		System.out.println(user);
 
-		for (int i = 0; i < 25; i++) {
-			Picture picture = this.pictureService.save(new Coordinate(1.0f, 1.0f));
-//			PictureSubmission submission = this.pictureService.createSubmission(team, picture, null);
+//		for (int i = 0; i < 25; i++) {
+////			Picture picture = this.pictureService.save(new Coordinate(1.0f, 1.0f));
+////			PictureSubmission submission = this.pictureService.createSubmission(team, picture, null);
+//
+////			System.out.println(submission);
+////			System.out.println(picture);
+//
+//		}
 
-//			System.out.println(submission);
-//			System.out.println(picture);
+		String test = """
+				Zegen een standbeeld van Nijntje.
+				Zonder behulp van papa's, mama's en de introcommissie achterhaal wie ‘Menno’ is en feliciteer hem.
+				High five een teamgenoot met beide handen, zorg ervoor dat een vreemde onder deze boog loopt.
+				Moedig kanoërs in de oude gracht aan.
+				Wordt beste vrienden met chat-gpt.
+				Laat chat-gpt iets onethisch zeggen.
+				Beken je meest beschamende vraag die je aan chat-gpt hebt gesteld.
+				Knuffel met je groepje een boom en bedank hem voor de zuurstof.
+				Maak een liefdesgedicht en lees hem voor aan een vreemde.
+				Moedig fietsers aan bij een fietspad alsof het een bergetappe is van de Tour de France.
+				Trek een sprintje onder de domtoren
+				Recontstueer een meme.
+				""";
 
-		}
-
-		for (int i = 0; i < 88; i++) {
-			Challenge challenge = this.challengeService.save("hello world", 30);
-//			System.out.println(challenge);
+		for (String s : test.split("\n")) {
+			this.challengeService.save(s, 30);
 		}
 	}
 }

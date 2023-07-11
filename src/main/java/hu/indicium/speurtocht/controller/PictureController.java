@@ -1,22 +1,24 @@
 package hu.indicium.speurtocht.controller;
 
-import hu.indicium.speurtocht.domain.Picture;
-import hu.indicium.speurtocht.domain.PictureSubmission;
-import hu.indicium.speurtocht.domain.SubmissionState;
+import hu.indicium.speurtocht.domain.*;
 import hu.indicium.speurtocht.security.AuthUtils;
 import hu.indicium.speurtocht.service.PictureService;
 import hu.indicium.speurtocht.service.TeamService;
 import hu.indicium.speurtocht.service.exceptions.AlreadyApprovedException;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -32,13 +34,27 @@ public class PictureController {
 	private PictureService pictureService;
 
 	@PostMapping
-	public void createPictures() {
-		// todo upload all pictures
+	public void createPictures(@RequestParam("files") MultipartFile[] files) throws IOException {
+		for (MultipartFile file : files) {
+			this.pictureService.createPictures(new Coordinate(0f, 0f), file);
+		}
 	}
 
 	@GetMapping
 	public List<Long> pictures() {
 		return this.pictureService.getAll().stream().map(Picture::getId).toList();
+	}
+
+	@GetMapping("/{id}/file")
+	@Transactional
+	public ResponseEntity<byte[]> getContent(@PathVariable Long id) {
+		HttpHeaders responseHeaders = new HttpHeaders();
+		PictureFile file = this.pictureService.getFile(id);
+		responseHeaders.set("Content-Type", file.getType());
+		return ResponseEntity
+				.ok()
+				.headers(responseHeaders)
+				.body(file.getContent());
 	}
 
 	@GetMapping("/team")

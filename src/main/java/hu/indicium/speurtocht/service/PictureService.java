@@ -6,13 +6,10 @@ import hu.indicium.speurtocht.repository.PictureSubmissionRepository;
 import hu.indicium.speurtocht.service.exceptions.AlreadyApprovedException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import lombok.val;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -23,8 +20,8 @@ public class PictureService {
 	private PictureRepository repository;
 	private PictureSubmissionRepository submissionRepository;
 
-	public Picture save(Coordinate coordinate) {
-		return this.repository.save(new Picture(coordinate));
+	public Picture createPictures(Coordinate coordinate, MultipartFile file) throws IOException {
+		return this.repository.save(new Picture(coordinate, file));
 	}
 
 	public Picture getPicture(Long id) {
@@ -62,5 +59,9 @@ public class PictureService {
 		}
 
 		return output;
+	}
+
+	public PictureFile getFile(Long id) {
+		return this.repository.getReferenceById(id).getFile();
 	}
 }

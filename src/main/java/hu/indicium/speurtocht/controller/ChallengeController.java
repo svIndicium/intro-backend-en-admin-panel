@@ -1,5 +1,6 @@
 package hu.indicium.speurtocht.controller;
 
+import hu.indicium.speurtocht.controller.dto.CreateChallengeDTO;
 import hu.indicium.speurtocht.domain.Challenge;
 import hu.indicium.speurtocht.domain.SubmissionState;
 import hu.indicium.speurtocht.security.AuthUtils;
@@ -28,13 +29,13 @@ public class ChallengeController {
 	private ChallengeService challengeService;
 
 	@PostMapping
-	public void createChallenges(@RequestBody List<String> challenges) {
-		this.challengeService.createBulk(challenges.stream().map(s -> new Challenge(s, 30)).toList());
+	public void createChallenges(@RequestBody List<CreateChallengeDTO> challenges) {
+		this.challengeService.createBulk(challenges.stream().map(challenge -> new Challenge(challenge.challenge(), challenge.points())).toList());
 	}
 
 	@GetMapping
-	public List<String> pictures() {
-		return this.challengeService.getAll().stream().map(Challenge::getChallenge).toList();
+	public List<Challenge> challenges() {
+		return this.challengeService.getAll();
 	}
 
 	@GetMapping("/team")
