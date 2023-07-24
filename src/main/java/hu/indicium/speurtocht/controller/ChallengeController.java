@@ -30,7 +30,7 @@ public class ChallengeController {
 
 	@PostMapping
 	public void createChallenges(@RequestBody List<CreateChallengeDTO> challenges) {
-		this.challengeService.createBulk(challenges.stream().map(challenge -> new Challenge(challenge.challenge(), challenge.points())).toList());
+		this.challengeService.createBulk(challenges.stream().map(challenge -> new Challenge(challenge.title(), challenge.challenge(), challenge.points())).toList());
 	}
 
 	@GetMapping

@@ -17,11 +17,14 @@ public class Challenge {
 	@GeneratedValue
 	private Long id;
 
+	private String title;
+
 	private String challenge;
 
 	private int points;
 
-	public Challenge(String challenge, int points) {
+	public Challenge(String title,String challenge, int points) {
+		this.title = title;
 		this.challenge = challenge;
 		this.points = points;
 	}

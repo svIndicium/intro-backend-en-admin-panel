@@ -2,11 +2,14 @@ package hu.indicium.speurtocht.controller;
 
 import hu.indicium.speurtocht.controller.dto.CreateTeamDTO;
 import hu.indicium.speurtocht.controller.dto.LeaderboardDTO;
+import hu.indicium.speurtocht.controller.dto.PointsDTO;
+import hu.indicium.speurtocht.security.AuthUtils;
 import hu.indicium.speurtocht.security.service.impl.AuthenticationServiceImpl;
 import hu.indicium.speurtocht.service.ChallengeService;
 import hu.indicium.speurtocht.service.PictureService;
 import hu.indicium.speurtocht.service.TeamService;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import hu.indicium.speurtocht.domain.Team;
 
@@ -19,6 +22,8 @@ import java.util.List;
 @AllArgsConstructor
 public class TeamController {
 
+	@Autowired
+	private AuthUtils authUtils;
 	private TeamService service;
 	private PictureService pictureService;
 	private ChallengeService challengeService;
@@ -29,19 +34,27 @@ public class TeamController {
 		return this.service
 				.getAll()
 				.stream()
-				.map(team -> new LeaderboardDTO(team.getName(), this.challengeService.getTeamPoints(team), this.pictureService.getTeamPoints(team)))
+				.map(team -> new LeaderboardDTO(team.getId(), team.getName(), new PointsDTO(this.challengeService.getTeamPoints(team), this.pictureService.getTeamPoints(team))))
 				.sorted(new LeaderboardComparator())
 				.toList();
+	}
+
+	@GetMapping("/points")
+	public PointsDTO points() {
+		Team team = this.authUtils.getTeam();
+		return new PointsDTO(this.challengeService.getTeamPoints(team), this.pictureService.getTeamPoints(team));
 	}
 
 	private static class LeaderboardComparator implements Comparator<LeaderboardDTO> {
 
 		@Override
 		public int compare(LeaderboardDTO o1, LeaderboardDTO o2) {
-			if (o1.challengePoints() == o2.challengePoints()) {
-				return (int) (o2.picturesApproved() - o1.picturesApproved());
+			PointsDTO p1 = o1.points();
+			PointsDTO p2 = o2.points();
+			if (p1.challengePoints() == p2.challengePoints()) {
+				return (int) (p2.picturesApproved() - p1.picturesApproved());
 			} else {
-				return (int) (o2.challengePoints() - o1.challengePoints());
+				return (int) (p2.challengePoints() - p1.challengePoints());
 			}
 		}
 	}

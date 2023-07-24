@@ -1,4 +1,6 @@
 package hu.indicium.speurtocht.controller.dto;
 
-public record LeaderboardDTO(String teamname, long challengePoints, long picturesApproved) {
+import java.util.UUID;
+
+public record LeaderboardDTO(UUID id, String teamname, PointsDTO points) {
 }

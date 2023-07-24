@@ -1,4 +1,4 @@
 package hu.indicium.speurtocht.controller.dto;
 
-public record CreateChallengeDTO(String challenge, int points) {
+public record CreateChallengeDTO(String title, String challenge, int points) {
 }

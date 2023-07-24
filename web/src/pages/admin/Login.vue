@@ -43,13 +43,13 @@
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: "team-1", password: "password" })
+          body: JSON.stringify({ username: "team-0", password: "password" })
         })
         .then<{ accessToken: string }>(e => e.json())
 
     localStorage.setItem("accessToken", token.accessToken)
 
-    await router.push({path: '/home'})
+    await router.push({path: '/user/home'})
   }
 </script>
 

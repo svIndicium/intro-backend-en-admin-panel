@@ -22,8 +22,8 @@ public class ChallengeService {
 	private ChallengeRepository repository;
 	private ChallengeSubmissionRepository submissionRepository;
 
-	public Challenge save(String challenge, int points) {
-		return this.repository.save(new Challenge(challenge, points));
+	public Challenge save(String title, String challenge, int points) {
+		return this.repository.save(new Challenge(title, challenge, points));
 	}
 
 	public List<Challenge> createBulk(List<Challenge> challenges) {
