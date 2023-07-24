@@ -6,10 +6,11 @@ import Challenges from "./pages/Challenges.vue";
 import Leaderboard from "./pages/Leaderboard.vue";
 import {RouteRecordRaw} from "vue-router";
 import CreateTeam from "./pages/admin/CreateTeam.vue";
-import Submission from "./pages/admin/Submission.vue";
 import CreateChallenges from "./pages/admin/CreateChallenges.vue";
 import CreatePictures from "./pages/admin/createPictures.vue";
 import UserHome from "./pages/UserHome.vue";
+import PictureSubmission from "./pages/admin/PictureSubmission.vue";
+import ChallengeSubmission from "./pages/admin/ChallengeSubmission.vue";
 
 const routes: RouteRecordRaw[] = [
     { path: '/', component: Home },
@@ -22,7 +23,8 @@ const routes: RouteRecordRaw[] = [
             { path: 'login', component: Login },
             { path: 'home', component: AdminHome},
             { path: 'team', component: CreateTeam},
-            { path: 'submission/:id', component: Submission},
+            { path: 'submissions/picture/:id', component: PictureSubmission},
+            { path: 'submissions/challenge/:id', component: ChallengeSubmission},
             { path: 'challenges', component: CreateChallenges },
             { path: 'pictures', component: CreatePictures },
         ]

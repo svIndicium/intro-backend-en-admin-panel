@@ -1,5 +1,7 @@
 package hu.indicium.speurtocht.controller;
 
+import hu.indicium.speurtocht.controller.dto.PictureSubmissionDTO;
+import hu.indicium.speurtocht.controller.dto.SubmissionDTO;
 import hu.indicium.speurtocht.domain.*;
 import hu.indicium.speurtocht.security.AuthUtils;
 import hu.indicium.speurtocht.service.PictureService;
@@ -66,14 +68,50 @@ public class PictureController {
 	public void createSubmission(@PathVariable Long pictureId, @RequestParam("file") MultipartFile file) {
 		try {
 			this.pictureService.createSubmission(
-				this.authUtils.getTeam(),
-				this.pictureService.getPicture(pictureId),
-				file
+					this.authUtils.getTeam(),
+					this.pictureService.getPicture(pictureId),
+					file
 			);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (AlreadyApprovedException e) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 		}
+	}
+
+	@GetMapping("/submissions")
+	public List<SubmissionDTO> getPending() {
+		return this.pictureService.getPending()
+				.stream()
+				.map((submission -> new SubmissionDTO(submission.getId(), submission.getTeam().getName(), submission.getClass().getSimpleName())))
+				.toList();
+	}
+
+	@GetMapping("/submissions/{id}")
+	public PictureSubmissionDTO getPending(@PathVariable UUID id) {
+		PictureSubmission submission = this.pictureService.getSubmission(id);
+		return new PictureSubmissionDTO(submission.getTeam().getName(), submission.getPicture().getId());
+	}
+
+	@PatchMapping("/submissions/{id}/approve")
+	public void approve(@PathVariable UUID id) {
+		this.pictureService.approve(id);
+	}
+
+	@PatchMapping("/submissions/{id}/deny")
+	public void deny(@PathVariable UUID id) {
+		this.pictureService.deny(id);
+	}
+
+	@GetMapping("/submissions/{id}/file")
+	@Transactional
+	public ResponseEntity<byte[]> getContent(@PathVariable UUID id) {
+		HttpHeaders responseHeaders = new HttpHeaders();
+		FileSubmission file = this.pictureService.getSubmissionFile(id);
+		responseHeaders.set("Content-Type", file.getType());
+		return ResponseEntity
+				.ok()
+				.headers(responseHeaders)
+				.body(file.getContent());
 	}
 }

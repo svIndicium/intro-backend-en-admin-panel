@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -26,6 +27,10 @@ public class PictureService {
 
 	public Picture getPicture(Long id) {
 		return this.repository.getReferenceById(id);
+	}
+
+	public PictureSubmission getSubmission(UUID id) {
+		return this.submissionRepository.getReferenceById(id);
 	}
 
 	public List<Picture> getAll() {
@@ -63,5 +68,25 @@ public class PictureService {
 
 	public PictureFile getFile(Long id) {
 		return this.repository.getReferenceById(id).getFile();
+	}
+
+	public FileSubmission getSubmissionFile(UUID id) {
+		return this.submissionRepository.getReferenceById(id).getFileSubmission();
+	}
+
+	public List<Submission> getPending() {
+		return this.submissionRepository.findByStatus(SubmissionState.PENDING);
+	}
+
+	public void approve(UUID id) {
+		PictureSubmission submission = this.submissionRepository.getReferenceById(id);
+		submission.approve();
+		this.submissionRepository.save(submission);
+	}
+
+	public void deny(UUID id) {
+		PictureSubmission submission = this.submissionRepository.getReferenceById(id);
+		submission.deny();
+		this.submissionRepository.save(submission);
 	}
 }

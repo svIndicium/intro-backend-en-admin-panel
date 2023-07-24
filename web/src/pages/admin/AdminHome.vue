@@ -2,7 +2,8 @@
 import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
   import {onBeforeUnmount, ref} from "vue";
 
-  const submissions = ref<{ id: string, teamName: string, type: string }[]>([])
+  const pictureSubmissions = ref<{ id: string, teamName: string }[]>([])
+  const challengeSubmissions = ref<{ id: string, teamName: string }[]>([])
   const challenges = ref<{ id: string, title: string, challenge: string, points: number}[]>([])
   const pictureIds = ref<{data: string, id: number}[]>([])
   fetchJsonWithAuth<{ id: string, title: string, challenge: string, points: number}[]>("/api/challenges")
@@ -24,7 +25,19 @@ import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
       })
 
 
-  const fetcherFunction = () => fetchJsonWithAuth<{ id: string, teamName: string, type: string }[]>("/api/submissions").then(response => submissions.value = response);
+  const fetcherFunction = () => {
+    fetchJsonWithAuth<{
+      id: string,
+      teamName: string,
+    }[]>("/api/pictures/submissions")
+        .then(e => pictureSubmissions.value = e)
+    fetchJsonWithAuth<{
+      id: string,
+      teamName: string,
+    }[]>("/api/challenges/submissions")
+        .then(e => challengeSubmissions.value = e)
+
+  }
   fetcherFunction()
   const refresher = setInterval(fetcherFunction, 1000 * 60)
 
@@ -93,8 +106,12 @@ import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
         </tr>
         </thead>
         <tbody>
-        <tr v-for="submission in submissions">
-          <th scope="row"><router-link :to="`/admin/submission/${submission.id}`">{{submission.type}}</router-link></th>
+        <tr v-for="submission in pictureSubmissions">
+          <th scope="row"><router-link :to="`/admin/submissions/picture/${submission.id}`">Picture</router-link></th>
+          <td>{{submission.teamName}}</td>
+        </tr>
+        <tr v-for="submission in challengeSubmissions">
+          <th scope="row"><router-link :to="`/admin/submissions/challenge/${submission.id}`">Challenge</router-link></th>
           <td>{{submission.teamName}}</td>
         </tr>
         </tbody>

@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 @Component
@@ -167,7 +168,10 @@ public class StartUp implements CommandLineRunner {
 		for (String s : test.split("\n")) {
 			String[] split = s.split("	");
 			System.out.println(Arrays.toString(split));
-			this.challengeService.save(split[1], split[2], Integer.parseInt(split[3]));
+			Challenge challenge = this.challengeService.save(split[1], split[2], Integer.parseInt(split[3]));
+			if (new Random().nextInt(88) >= 80) {
+				this.challengeService.createSubmission(teamService.getAll().get(0), challenge, new MultipartFile[] {result, result, result});
+			}
 		}
 	}
 }
