@@ -43,7 +43,7 @@
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: "team-0", password: "password" })
+          body: JSON.stringify({ username: "team-1", password: "password" })
         })
         .then<{ accessToken: string }>(e => e.json())
 
