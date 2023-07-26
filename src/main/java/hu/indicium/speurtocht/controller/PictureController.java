@@ -7,6 +7,12 @@ import hu.indicium.speurtocht.security.AuthUtils;
 import hu.indicium.speurtocht.service.PictureService;
 import hu.indicium.speurtocht.service.TeamService;
 import hu.indicium.speurtocht.service.exceptions.AlreadyApprovedException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +26,12 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
+@Tag(
+		name = "Picture Bingo",
+		description = "Search through a pre-defined area for these locations."
+)
 @RestController
 @RequestMapping("/pictures")
 @AllArgsConstructor
@@ -35,18 +42,22 @@ public class PictureController {
 
 	private PictureService pictureService;
 
+	@Operation(summary = "Upload a picture for a new location")
 	@PostMapping
 	public void createPictures(@RequestParam("files") MultipartFile[] files) throws IOException {
+		// todo limit to 25 pictures
 		for (MultipartFile file : files) {
 			this.pictureService.createPictures(new Coordinate(0f, 0f), file);
 		}
 	}
 
+	@Operation(summary = "Get a list of picture id's")
 	@GetMapping
 	public List<Long> pictures() {
 		return this.pictureService.getAll().stream().map(Picture::getId).toList();
 	}
 
+	@Operation(summary = "Get image file of a particular location")
 	@GetMapping("/{id}/file")
 	@Transactional
 	public ResponseEntity<byte[]> getContent(@PathVariable Long id) {
@@ -59,11 +70,21 @@ public class PictureController {
 				.body(file.getContent());
 	}
 
+	@Operation(
+			summary = "Get my team's picture submissions",
+			description = "Get my team's picture submissions grouped by the picture id it was submitted to."
+	)
 	@GetMapping("/team")
 	public Map<Long, List<SubmissionState>> getTeamPictures() {
 		return this.pictureService.getTeamsPictures(authUtils.getTeam());
 	}
 
+	@Operation(summary = "Create submission for a location")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200"),
+			@ApiResponse(responseCode = "400", description = "Failed to parse image."),
+			@ApiResponse(responseCode = "403", description = "There's already a image submitted for this location.")
+	})
 	@PostMapping(value = "/{pictureId}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
 	public void createSubmission(@PathVariable Long pictureId, @RequestParam("file") MultipartFile file) {
 		try {
@@ -74,11 +95,13 @@ public class PictureController {
 			);
 		} catch (IOException e) {
 			e.printStackTrace();
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
 		} catch (AlreadyApprovedException e) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 		}
 	}
 
+	@Operation(summary = "Get list of picture submissions awaiting approval")
 	@GetMapping("/submissions")
 	public List<SubmissionDTO> getPending() {
 		return this.pictureService.getPending()
@@ -87,22 +110,26 @@ public class PictureController {
 				.toList();
 	}
 
+	@Operation(summary = "Get data about a picture submission")
 	@GetMapping("/submissions/{id}")
 	public PictureSubmissionDTO getPending(@PathVariable UUID id) {
 		PictureSubmission submission = this.pictureService.getSubmission(id);
 		return new PictureSubmissionDTO(submission.getTeam().getName(), submission.getPicture().getId());
 	}
 
+	@Operation(summary = "Approve a picture submission")
 	@PatchMapping("/submissions/{id}/approve")
 	public void approve(@PathVariable UUID id) {
 		this.pictureService.approve(id);
 	}
 
+	@Operation(summary = "Deny a picture submission")
 	@PatchMapping("/submissions/{id}/deny")
 	public void deny(@PathVariable UUID id) {
 		this.pictureService.deny(id);
 	}
 
+	@Operation(summary = "Get a submission's submitted image")
 	@GetMapping("/submissions/{id}/file")
 	@Transactional
 	public ResponseEntity<byte[]> getContent(@PathVariable UUID id) {

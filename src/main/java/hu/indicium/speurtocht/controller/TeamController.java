@@ -8,6 +8,9 @@ import hu.indicium.speurtocht.security.service.impl.AuthenticationServiceImpl;
 import hu.indicium.speurtocht.service.ChallengeService;
 import hu.indicium.speurtocht.service.PictureService;
 import hu.indicium.speurtocht.service.TeamService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +20,7 @@ import java.util.Comparator;
 import java.util.List;
 
 
+@Tag(name = "Team")
 @RestController
 @RequestMapping("/teams")
 @AllArgsConstructor
@@ -29,6 +33,10 @@ public class TeamController {
 	private ChallengeService challengeService;
 	private AuthenticationServiceImpl authenticationService;
 
+	@Operation(
+			summary = "Get current leaderboard",
+			description = "Get a list of teams and their score. List is already sorted by order."
+	)
 	@GetMapping("/leaderboard")
 	public List<LeaderboardDTO> leaderboard() {
 		return this.service
@@ -39,6 +47,10 @@ public class TeamController {
 				.toList();
 	}
 
+	@Operation(
+			summary = "Get my team's score",
+			description = "Get amount of challenge points awarded and picture locations are approved."
+	)
 	@GetMapping("/points")
 	public PointsDTO points() {
 		Team team = this.authUtils.getTeam();
@@ -59,6 +71,9 @@ public class TeamController {
 		}
 	}
 
+	@Operation(
+			summary = "Create a new team"
+	)
 	@PostMapping
 	public void createNewTeam(@RequestBody CreateTeamDTO teamDTO) {
 		Team team = this.service.save(teamDTO.teamname());

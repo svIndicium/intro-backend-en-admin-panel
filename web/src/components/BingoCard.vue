@@ -2,8 +2,6 @@
 import {fetchJsonWithAuth, fetchWithAuth} from "../lib/fetcher";
 import {ref} from "vue";
 
-HourglassIcon
-
 const pictureIds = ref<{data: string, id: number}[]>([])
 fetchJsonWithAuth<number[]>("/api/pictures")
     .then(async (e) => {
