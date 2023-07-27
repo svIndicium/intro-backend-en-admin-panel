@@ -27,7 +27,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		userRepository.save(user);
 		var jwt = jwtService.generateToken(user);
 
-		return new AuthenticationResponse(jwt);
+		return new AuthenticationResponse(jwt, user.getRole());
 	}
 
 	@Override
@@ -36,7 +36,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		userRepository.save(user);
 		var jwt = jwtService.generateToken(user);
 
-		return new AuthenticationResponse(jwt);
+		return new AuthenticationResponse(jwt, user.getRole());
 	}
 
 	@Override
@@ -49,6 +49,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		Team team = user.getTeam();
 		var jwt = jwtService.generateToken(user);
 
-		return new AuthenticationResponse(jwt);
+		return new AuthenticationResponse(jwt, user.getRole());
 	}
 }

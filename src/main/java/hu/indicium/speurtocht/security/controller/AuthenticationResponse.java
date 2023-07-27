@@ -1,4 +1,6 @@
 package hu.indicium.speurtocht.security.controller;
 
-public record AuthenticationResponse(String accessToken) {
+import hu.indicium.speurtocht.security.domain.UserRole;
+
+public record AuthenticationResponse(String accessToken, UserRole role) {
 }
