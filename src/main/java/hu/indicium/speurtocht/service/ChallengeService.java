@@ -1,5 +1,6 @@
 package hu.indicium.speurtocht.service;
 
+import hu.indicium.speurtocht.controller.dto.ChallengeStatusDTO;
 import hu.indicium.speurtocht.domain.*;
 import hu.indicium.speurtocht.repository.ChallengeRepository;
 import hu.indicium.speurtocht.repository.ChallengeSubmissionRepository;
@@ -11,9 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -35,8 +36,8 @@ public class ChallengeService {
 		return this.repository.getReferenceById(id);
 	}
 
-	public ChallengeSubmission getSubmission(UUID id) {
-		return this.submissionRepository.getReferenceById(id);
+	public ChallengeSubmission getSubmission(Team team, Long id) {
+		return this.submissionRepository.getReferenceById(new ChallengeSubmissionId(team, this.getChallenge(id)));
 	}
 
 	public long getTeamPoints(Team team) {
@@ -53,37 +54,56 @@ public class ChallengeService {
 	}
 
 	@Transactional
-	public HashMap<Long, List<SubmissionState>> getTeamChallenges(Team team) {
-		List<Challenge> challenges = this.repository.findAll();
-		HashMap<Long, List<SubmissionState>> output = new HashMap<>(challenges.size());
-		List<ChallengeSubmission> submissions = this.submissionRepository.findByTeam(team);
-		for (Challenge challenge : challenges) {
-			output.put(
-					challenge.getId(),
-					submissions
-							.stream()
-							.filter(
-									(submission) -> submission.getChallenge().getId() == challenge.getId())
-							.map(ChallengeSubmission::getStatus)
-							.toList()
-			);
-		}
+	public Map<Long, ChallengeStatusDTO> getTeamChallenges(Team team) {
+		Map<Long, ChallengeStatusDTO> collected = this.repository
+				.findAll()
+				.stream()
+				.collect(
+						Collectors.toMap(
+								Challenge::getId,
+								(challenge) -> new ChallengeStatusDTO(
+										challenge.getId(),
+										challenge.getTitle(),
+										challenge.getChallenge(),
+										challenge.getPoints(),
+										null
+								)
+						)
+				);
 
-		return output;
+		Map<Long, ChallengeStatusDTO> submitted = this.submissionRepository
+				.findByTeam(team)
+				.stream()
+				.collect(
+						Collectors.toMap(
+								(e) -> e.getChallenge().getId(),
+								(submission) -> new ChallengeStatusDTO(
+										submission.getChallenge().getId(),
+										submission.getChallenge().getTitle(),
+										submission.getChallenge().getChallenge(),
+										submission.getChallenge().getPoints(),
+										submission.getStatus()
+								)
+						)
+				);
+
+		collected.putAll(submitted);
+
+		return collected;
 	}
 
 	public List<ChallengeSubmission> getPending() {
 		return this.submissionRepository.findByStatus(SubmissionState.PENDING);
 	}
 
-	public void approve(UUID id) {
-		ChallengeSubmission submission = this.submissionRepository.getReferenceById(id);
+	public void approve(Team team, Long id) {
+		ChallengeSubmission submission = this.getSubmission(team, id);
 		submission.approve();
 		this.submissionRepository.save(submission);
 	}
 
-	public void deny(UUID id) {
-		ChallengeSubmission submission = this.submissionRepository.getReferenceById(id);
+	public void deny(Team team, Long id) {
+		ChallengeSubmission submission = this.getSubmission(team, id);
 		submission.deny();
 		this.submissionRepository.save(submission);
 	}

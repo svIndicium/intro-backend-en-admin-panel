@@ -106,7 +106,7 @@ public class PictureController {
 	public List<SubmissionDTO> getPending() {
 		return this.pictureService.getPending()
 				.stream()
-				.map((submission -> new SubmissionDTO(submission.getId(), submission.getTeam().getName(), submission.getClass().getSimpleName())))
+				.map((submission -> new SubmissionDTO(submission.getId(), submission.getTeam().getName(), UUID.randomUUID())))
 				.toList();
 	}
 

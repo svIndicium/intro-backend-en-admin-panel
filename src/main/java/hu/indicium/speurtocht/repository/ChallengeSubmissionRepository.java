@@ -7,9 +7,15 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 import java.util.UUID;
 
-public interface ChallengeSubmissionRepository extends JpaRepository<ChallengeSubmission, UUID> {
+public interface ChallengeSubmissionRepository extends JpaRepository<ChallengeSubmission, ChallengeSubmissionId> {
 	boolean existsByTeamAndChallengeAndStatus(Team team, Challenge challenge, SubmissionState status);
 	List<ChallengeSubmission> findByTeam(Team team);
 	List<ChallengeSubmission> findByTeamAndStatus(Team team, SubmissionState status);
 	List<ChallengeSubmission> findByStatus(SubmissionState status);
+
+//	@Query("select c from ChallengeSubmission c where c.team = ?1")
+//	List<ChallengeSubmissionInfo> findByTeam(Team team);
+
+
+
 }

@@ -20,7 +20,7 @@ public abstract class Submission {
 
 	@Id
 	@GeneratedValue
-	private UUID id;
+	private Long id;
 
 	@ManyToOne
 	@JoinColumn(name = "team_id")

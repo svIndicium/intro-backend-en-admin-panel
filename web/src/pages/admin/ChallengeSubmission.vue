@@ -9,11 +9,11 @@ const router = useRouter();
 const original = ref<HTMLDivElement>()
 const submission = ref<{ title: string, challenge: string, defaultPoints: number, submittedBy: string, files: string[] }>()
 
-fetchJsonWithAuth<{ title: string, challenge: string, defaultPoints: number, submittedBy: string, files: string[] }>(`/api/challenges/submissions/${router.currentRoute.value.params.id}`)
+fetchJsonWithAuth<{ title: string, challenge: string, defaultPoints: number, submittedBy: string, files: string[] }>(`/api/challenges/${router.currentRoute.value.params.id}/teams/${router.currentRoute.value.params.teamId}`)
     .then(e => submission.value = e)
 
 async function deny() {
-  await fetch(`/api/challenges/submissions/${router.currentRoute.value.params.id}/deny`, {
+  await fetch(`/api/challenges/${router.currentRoute.value.params.id}/teams/${router.currentRoute.value.params.teamId}/deny`, {
     method: "PATCH",
     headers: { "Authorization": "Bearer " + localStorage.getItem("accessToken") },
   })
@@ -21,7 +21,7 @@ async function deny() {
 }
 
 async function approve() {
-  await fetch(`/api/challenges/submissions/${router.currentRoute.value.params.id}/approve`, {
+  await fetch(`/api/challenges/${router.currentRoute.value.params.id}/teams/${router.currentRoute.value.params.teamId}/approve`, {
     method: "PATCH",
     headers: { "Authorization": "Bearer " + localStorage.getItem("accessToken") },
   })

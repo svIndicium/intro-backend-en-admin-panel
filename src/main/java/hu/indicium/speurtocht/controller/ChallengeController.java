@@ -1,12 +1,13 @@
 package hu.indicium.speurtocht.controller;
 
+import hu.indicium.speurtocht.controller.dto.ChallengeStatusDTO;
 import hu.indicium.speurtocht.controller.dto.ChallengeSubmissionDTO;
 import hu.indicium.speurtocht.controller.dto.CreateChallengeDTO;
-import hu.indicium.speurtocht.controller.dto.PictureSubmissionDTO;
 import hu.indicium.speurtocht.controller.dto.SubmissionDTO;
 import hu.indicium.speurtocht.domain.*;
 import hu.indicium.speurtocht.security.AuthUtils;
 import hu.indicium.speurtocht.service.ChallengeService;
+import hu.indicium.speurtocht.service.TeamService;
 import hu.indicium.speurtocht.service.exceptions.AlreadyApprovedException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -24,9 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Tag(
 		name = "Crazy 88",
@@ -41,6 +40,7 @@ public class ChallengeController {
 	private AuthUtils authUtils;
 
 	private ChallengeService challengeService;
+	private TeamService teamService;
 
 	@Operation(summary = "Create challenges")
 	@PostMapping
@@ -51,17 +51,8 @@ public class ChallengeController {
 
 	@Operation(summary = "Get list of challenges")
 	@GetMapping
-	public List<Challenge> challenges() {
-		return this.challengeService.getAll();
-	}
-
-	@Operation(
-			summary = "Get my team's Crazy 88 submissions",
-			description = "Get my team's Crazy 88 submissions grouped by the challenge id it was submitted to."
-	)
-	@GetMapping("/team")
-	public Map<Long, List<SubmissionState>> getTeamChallenges() {
-		return this.challengeService.getTeamChallenges(authUtils.getTeam());
+	public Collection<ChallengeStatusDTO> getChallenges() {
+		return this.challengeService.getTeamChallenges(this.authUtils.getTeam()).values();
 	}
 
 	@Operation(summary = "Create submission for a challenge")
@@ -87,19 +78,20 @@ public class ChallengeController {
 	}
 
 	@Operation(summary = "Get list of Crazy 88 submissions awaiting approval")
-	@GetMapping("/submissions")
+	@GetMapping("/pending")
 	public List<SubmissionDTO> getPending() {
-		return this.challengeService.getPending()
+		return this.challengeService
+				.getPending()
 				.stream()
-				.map((submission -> new SubmissionDTO(submission.getId(), submission.getTeam().getName(), submission.getClass().getSimpleName())))
+				.map((submission -> new SubmissionDTO(submission.getChallenge().getId(), submission.getTeam().getName(), submission.getTeam().getId())))
 				.toList();
 	}
 
 	@Operation(summary = "Get data about a Crazy 88 submission")
-	@GetMapping("/submissions/{id}")
+	@GetMapping("/{challengeId}/teams/{teamId}")
 	@Transactional
-	public ChallengeSubmissionDTO getSubmission(@PathVariable UUID id) {
-		ChallengeSubmission submission = this.challengeService.getSubmission(id);
+	public ChallengeSubmissionDTO getSubmission(@PathVariable Long challengeId, @PathVariable UUID teamId) {
+		ChallengeSubmission submission = this.challengeService.getSubmission(this.teamService.getTeam(teamId), challengeId);
 		return new ChallengeSubmissionDTO(
 				submission.getChallenge().getTitle(),
 				submission.getChallenge().getChallenge(),
@@ -110,23 +102,23 @@ public class ChallengeController {
 	}
 
 	@Operation(summary = "Approve a Crazy 88 submission")
-	@PatchMapping("/submissions/{id}/approve")
-	public void approve(@PathVariable UUID id) {
-		this.challengeService.approve(id);
+	@PatchMapping("/{challengeId}/teams/{teamId}/approve")
+	public void approve(@PathVariable Long challengeId, @PathVariable UUID teamId) {
+		this.challengeService.approve(this.teamService.getTeam(teamId), challengeId);
 	}
 
 	@Operation(summary = "Deny a Crazy 88 submission")
-	@PatchMapping("/submissions/{id}/deny")
-	public void deny(@PathVariable UUID id) {
-		this.challengeService.deny(id);
+	@PatchMapping("/{challengeId}/teams/{teamId}/deny")
+	public void deny(@PathVariable Long challengeId, @PathVariable UUID teamId) {
+		this.challengeService.deny(this.teamService.getTeam(teamId), challengeId);
 	}
 
 	@Operation(summary = "Get a file from a Crazy 88 submission")
-	@GetMapping("/submissions/{id}/file")
+	@GetMapping("/submissions/{fileId}/file")
 	@Transactional
-	public ResponseEntity<byte[]> getContent(@PathVariable UUID id) {
+	public ResponseEntity<byte[]> getContent(@PathVariable UUID fileId) {
 		HttpHeaders responseHeaders = new HttpHeaders();
-		FileSubmission file = this.challengeService.getSubmissionFile(id);
+		FileSubmission file = this.challengeService.getSubmissionFile(fileId);
 		responseHeaders.set("Content-Type", file.getType());
 		return ResponseEntity
 				.ok()

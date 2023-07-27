@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {fetchJsonWithAuth, fetchWithAuth} from "../lib/fetcher";
 import {ref} from "vue";
-
+fetchJsonWithAuth<number[]>("/api/challenges/team")
 const pictureIds = ref<{data: string, id: number}[]>([])
 fetchJsonWithAuth<number[]>("/api/pictures")
     .then(async (e) => {

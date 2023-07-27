@@ -17,18 +17,15 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
+@IdClass(ChallengeSubmissionId.class)
 public class ChallengeSubmission {
 
-	@Id
-	@GeneratedValue
-	private UUID id;
-
 	@ManyToOne
-	@JoinColumn(name = "team_id")
+	@Id
 	private Team team;
 
 	@ManyToOne
-	@JoinColumn(name = "challenge_id")
+	@Id
 	private Challenge challenge;
 
 	private SubmissionState status;

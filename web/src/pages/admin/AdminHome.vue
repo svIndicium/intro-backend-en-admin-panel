@@ -3,7 +3,7 @@ import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
   import {onBeforeUnmount, ref} from "vue";
 
   const pictureSubmissions = ref<{ id: string, teamName: string }[]>([])
-  const challengeSubmissions = ref<{ id: string, teamName: string }[]>([])
+  const challengeSubmissions = ref<{ id: string, teamName: string, teamId: string }[]>([])
   const challenges = ref<{ id: string, title: string, challenge: string, points: number}[]>([])
   const pictureIds = ref<{data: string, id: number}[]>([])
   fetchJsonWithAuth<{ id: string, title: string, challenge: string, points: number}[]>("/api/challenges")
@@ -34,7 +34,8 @@ import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
     fetchJsonWithAuth<{
       id: string,
       teamName: string,
-    }[]>("/api/challenges/submissions")
+      teamId: string,
+    }[]>("/api/challenges/pending")
         .then(e => challengeSubmissions.value = e)
 
   }
@@ -111,7 +112,7 @@ import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
           <td>{{submission.teamName}}</td>
         </tr>
         <tr v-for="submission in challengeSubmissions">
-          <th scope="row"><router-link :to="`/admin/submissions/challenge/${submission.id}`">Challenge</router-link></th>
+          <th scope="row"><router-link :to="`/admin/submissions/challenge/${submission.id}/team/${submission.teamId}`">Challenge</router-link></th>
           <td>{{submission.teamName}}</td>
         </tr>
         </tbody>
