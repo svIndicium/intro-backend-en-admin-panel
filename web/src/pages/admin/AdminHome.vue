@@ -2,10 +2,10 @@
 import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
   import {onBeforeUnmount, ref} from "vue";
 
-  const pictureSubmissions = ref<{ id: string, teamName: string }[]>([])
+  const pictureSubmissions = ref<{ id: string, teamName: string, teamId: string }[]>([])
   const challengeSubmissions = ref<{ id: string, teamName: string, teamId: string }[]>([])
   const challenges = ref<{ id: string, title: string, challenge: string, points: number}[]>([])
-  const pictureIds = ref<{data: string, id: number}[]>([])
+  const pictureIds = ref<{data: string, id: string }[]>([])
   fetchJsonWithAuth<{ id: string, title: string, challenge: string, points: number}[]>("/api/challenges")
       .then(e => challenges.value = e)
 
@@ -13,13 +13,13 @@ import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
   fetchJsonWithAuth<{id: string, teamname: string, points: { challengePoints: number, picturesApproved: number }}[]>("/api/teams/leaderboard")
       .then(e => leaderboard.value = e)
 
-  fetchJsonWithAuth<number[]>("/api/pictures")
+  fetchJsonWithAuth<{ id: string }[]>("/api/pictures")
       .then(async (e) => {
-        const temp = e.map(async (id) => {
-          const data = await fetchWithAuth(`/api/pictures/${id}/file`)
+        const temp = e.map(async (obj) => {
+          const data = await fetchWithAuth(`/api/pictures/${obj.id}/file`)
               .then(r => r.blob())
               .then(a => URL.createObjectURL(a))
-          return { id, data }
+          return { id: obj.id, data }
         })
         pictureIds.value = await Promise.all(temp)
       })
@@ -29,7 +29,8 @@ import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
     fetchJsonWithAuth<{
       id: string,
       teamName: string,
-    }[]>("/api/pictures/submissions")
+      teamId: string,
+    }[]>("/api/pictures/pending")
         .then(e => pictureSubmissions.value = e)
     fetchJsonWithAuth<{
       id: string,
@@ -108,7 +109,7 @@ import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
         </thead>
         <tbody>
         <tr v-for="submission in pictureSubmissions">
-          <th scope="row"><router-link :to="`/admin/submissions/picture/${submission.id}`">Picture</router-link></th>
+          <th scope="row"><router-link :to="`/admin/submissions/picture/${submission.id}/team/${submission.teamId}`">Picture</router-link></th>
           <td>{{submission.teamName}}</td>
         </tr>
         <tr v-for="submission in challengeSubmissions">

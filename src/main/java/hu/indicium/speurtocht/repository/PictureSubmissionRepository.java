@@ -7,9 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 import java.util.UUID;
 
-public interface PictureSubmissionRepository extends JpaRepository<PictureSubmission, UUID> {
+public interface PictureSubmissionRepository extends JpaRepository<PictureSubmission, PictureSubmissionId> {
 	List<PictureSubmission> findByTeam(Team team);
 	boolean existsByTeamAndPictureAndStatus(Team team, Picture picture, SubmissionState status);
 	long countByTeamAndStatus(Team team, SubmissionState status);
-	List<Submission> findByStatus(SubmissionState status);
+	List<PictureSubmission> findByStatus(SubmissionState status);
 }

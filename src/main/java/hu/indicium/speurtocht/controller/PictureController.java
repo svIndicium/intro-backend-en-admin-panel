@@ -41,6 +41,7 @@ public class PictureController {
 	private AuthUtils authUtils;
 
 	private PictureService pictureService;
+	private TeamService teamService;
 
 	@Operation(summary = "Upload a picture for a new location")
 	@PostMapping
@@ -51,11 +52,11 @@ public class PictureController {
 		}
 	}
 
-	@Operation(summary = "Get a list of picture id's")
-	@GetMapping
-	public List<Long> pictures() {
-		return this.pictureService.getAll().stream().map(Picture::getId).toList();
-	}
+//	@Operation(summary = "Get a list of picture id's")
+//	@GetMapping
+//	public List<Long> pictures() {
+//		return this.pictureService.getAll().stream().map(Picture::getId).toList();
+//	}
 
 	@Operation(summary = "Get image file of a particular location")
 	@GetMapping("/{id}/file")
@@ -74,9 +75,9 @@ public class PictureController {
 			summary = "Get my team's picture submissions",
 			description = "Get my team's picture submissions grouped by the picture id it was submitted to."
 	)
-	@GetMapping("/team")
-	public Map<Long, List<SubmissionState>> getTeamPictures() {
-		return this.pictureService.getTeamsPictures(authUtils.getTeam());
+	@GetMapping
+	public Collection<PictureSubmissionDTO> getTeamPictures() {
+		return this.pictureService.getTeamsPictures(authUtils.getTeam()).values();
 	}
 
 	@Operation(summary = "Create submission for a location")
@@ -102,39 +103,39 @@ public class PictureController {
 	}
 
 	@Operation(summary = "Get list of picture submissions awaiting approval")
-	@GetMapping("/submissions")
+	@GetMapping("/pending")
 	public List<SubmissionDTO> getPending() {
 		return this.pictureService.getPending()
 				.stream()
-				.map((submission -> new SubmissionDTO(submission.getId(), submission.getTeam().getName(), UUID.randomUUID())))
+				.map((submission -> new SubmissionDTO(submission.getPicture().getId(), submission.getTeam().getName(), submission.getTeam().getId())))
 				.toList();
 	}
 
-	@Operation(summary = "Get data about a picture submission")
-	@GetMapping("/submissions/{id}")
-	public PictureSubmissionDTO getPending(@PathVariable UUID id) {
-		PictureSubmission submission = this.pictureService.getSubmission(id);
-		return new PictureSubmissionDTO(submission.getTeam().getName(), submission.getPicture().getId());
-	}
+//	@Operation(summary = "Get data about a picture submission")
+//	@GetMapping("/{pictureId}/teams/{teamId}")
+//	public PictureSubmissionDTO getSubmission(@PathVariable Long pictureId, @PathVariable UUID teamId) {
+//		PictureSubmission submission = this.pictureService.getSubmission(this.teamService.getTeam(teamId), pictureId);
+//		return new PictureSubmissionDTO(submission.getTeam().getName(), submission.getPicture().getId());
+//	}
 
 	@Operation(summary = "Approve a picture submission")
-	@PatchMapping("/submissions/{id}/approve")
-	public void approve(@PathVariable UUID id) {
-		this.pictureService.approve(id);
+	@PatchMapping("/{pictureId}/teams/{teamId}/approve")
+	public void approve(@PathVariable Long pictureId, @PathVariable UUID teamId) {
+		this.pictureService.approve(this.teamService.getTeam(teamId), pictureId);
 	}
 
 	@Operation(summary = "Deny a picture submission")
-	@PatchMapping("/submissions/{id}/deny")
-	public void deny(@PathVariable UUID id) {
-		this.pictureService.deny(id);
+	@PatchMapping("/{pictureId}/teams/{teamId}/deny")
+	public void deny(@PathVariable Long pictureId, @PathVariable UUID teamId) {
+		this.pictureService.deny(this.teamService.getTeam(teamId), pictureId);
 	}
 
 	@Operation(summary = "Get a submission's submitted image")
-	@GetMapping("/submissions/{id}/file")
+	@GetMapping("/{pictureId}/teams/{teamId}/file")
 	@Transactional
-	public ResponseEntity<byte[]> getContent(@PathVariable UUID id) {
+	public ResponseEntity<byte[]> getContent(@PathVariable Long pictureId, @PathVariable UUID teamId) {
 		HttpHeaders responseHeaders = new HttpHeaders();
-		FileSubmission file = this.pictureService.getSubmissionFile(id);
+		FileSubmission file = this.pictureService.getSubmissionFile(this.teamService.getTeam(teamId), pictureId);
 		responseHeaders.set("Content-Type", file.getType());
 		return ResponseEntity
 				.ok()

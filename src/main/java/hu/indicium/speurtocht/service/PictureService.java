@@ -1,6 +1,9 @@
 package hu.indicium.speurtocht.service;
 
+import hu.indicium.speurtocht.controller.dto.ChallengeStatusDTO;
+import hu.indicium.speurtocht.controller.dto.PictureSubmissionDTO;
 import hu.indicium.speurtocht.domain.*;
+import hu.indicium.speurtocht.repository.FileSubmissionRepository;
 import hu.indicium.speurtocht.repository.PictureRepository;
 import hu.indicium.speurtocht.repository.PictureSubmissionRepository;
 import hu.indicium.speurtocht.service.exceptions.AlreadyApprovedException;
@@ -12,7 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -20,6 +25,8 @@ public class PictureService {
 
 	private PictureRepository repository;
 	private PictureSubmissionRepository submissionRepository;
+	private FileSubmissionRepository fileSubmissionRepository;
+
 
 	public Picture createPictures(Coordinate coordinate, MultipartFile file) throws IOException {
 		return this.repository.save(new Picture(coordinate, file));
@@ -29,8 +36,8 @@ public class PictureService {
 		return this.repository.getReferenceById(id);
 	}
 
-	public PictureSubmission getSubmission(UUID id) {
-		return this.submissionRepository.getReferenceById(id);
+	public PictureSubmission getSubmission(Team team, Long id) {
+		return this.submissionRepository.getReferenceById(new PictureSubmissionId(team, this.repository.getReferenceById(id)));
 	}
 
 	public List<Picture> getAll() {
@@ -47,45 +54,58 @@ public class PictureService {
 	}
 
 	@Transactional
-	public HashMap<Long, List<SubmissionState>> getTeamsPictures(Team team) {
-		List<Picture> pictures = this.repository.findAll();
-		HashMap<Long, List<SubmissionState>> output = new HashMap<>(pictures.size());
-		List<PictureSubmission> submissions = this.submissionRepository.findByTeam(team);
-		for (Picture picture : pictures) {
-			output.put(
-					picture.getId(),
-					submissions
-							.stream()
-							.filter(
-									(submission) -> submission.getPicture().getId() == picture.getId())
-							.map(PictureSubmission::getStatus)
-							.toList()
-			);
-		}
+	public Map<Long, PictureSubmissionDTO> getTeamsPictures(Team team) {
+		Map<Long, PictureSubmissionDTO> collected = this.repository
+				.findAll()
+				.stream()
+				.collect(
+						Collectors.toMap(
+								Picture::getId,
+								(picture) -> new PictureSubmissionDTO(
+										picture.getId(),
+										null
+								)
+						)
+				);
 
-		return output;
+		Map<Long, PictureSubmissionDTO> submitted = this.submissionRepository
+				.findByTeam(team)
+				.stream()
+				.collect(
+						Collectors.toMap(
+								(e) -> e.getPicture().getId(),
+								(submission) -> new PictureSubmissionDTO(
+										submission.getPicture().getId(),
+										submission.getStatus()
+								)
+						)
+				);
+
+		collected.putAll(submitted);
+
+		return collected;
 	}
 
 	public PictureFile getFile(Long id) {
 		return this.repository.getReferenceById(id).getFile();
 	}
 
-	public FileSubmission getSubmissionFile(UUID id) {
-		return this.submissionRepository.getReferenceById(id).getFileSubmission();
+	public FileSubmission getSubmissionFile(Team team, Long id) {
+		return this.submissionRepository.getReferenceById(new PictureSubmissionId(team, this.getPicture(id))).getFileSubmission();
 	}
 
-	public List<Submission> getPending() {
+	public List<PictureSubmission> getPending() {
 		return this.submissionRepository.findByStatus(SubmissionState.PENDING);
 	}
 
-	public void approve(UUID id) {
-		PictureSubmission submission = this.submissionRepository.getReferenceById(id);
+	public void approve(Team team, Long id) {
+		PictureSubmission submission = this.submissionRepository.getReferenceById(new PictureSubmissionId(team, this.getPicture(id)));
 		submission.approve();
 		this.submissionRepository.save(submission);
 	}
 
-	public void deny(UUID id) {
-		PictureSubmission submission = this.submissionRepository.getReferenceById(id);
+	public void deny(Team team, Long id) {
+		PictureSubmission submission = this.submissionRepository.getReferenceById(new PictureSubmissionId(team, this.getPicture(id)));
 		submission.deny();
 		this.submissionRepository.save(submission);
 	}

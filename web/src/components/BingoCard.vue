@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import {fetchJsonWithAuth, fetchWithAuth} from "../lib/fetcher";
 import {ref} from "vue";
-fetchJsonWithAuth<number[]>("/api/challenges/team")
-const pictureIds = ref<{data: string, id: number}[]>([])
-fetchJsonWithAuth<number[]>("/api/pictures")
+fetchJsonWithAuth<number[]>("/api/challenges")
+const pictureIds = ref<{data: string, id: string, state: string}[]>([])
+fetchJsonWithAuth<{id:string, state: string}[]>("/api/pictures")
     .then(async (e) => {
-      const temp = e.map(async (id) => {
-        const data = await fetchWithAuth(`/api/pictures/${id}/file`)
+      const temp = e.map(async (obj) => {
+        const data = await fetchWithAuth(`/api/pictures/${obj.id}/file`)
             .then(r => r.blob())
             .then(a => URL.createObjectURL(a))
-        return { id, data }
+        return { id: obj.id, state: obj.state, data }
       })
       pictureIds.value = await Promise.all(temp)
     })

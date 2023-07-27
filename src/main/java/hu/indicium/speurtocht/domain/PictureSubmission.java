@@ -13,14 +13,35 @@ import java.io.IOException;
 @ToString
 @Getter
 @Setter
-public class PictureSubmission extends Submission {
+@IdClass(PictureSubmissionId.class)
+public class PictureSubmission {
 
+	@Id
 	@ManyToOne
-	@JoinColumn(name = "picture_id")
 	private Picture picture;
 
+	@Id
+	@ManyToOne
+	private Team team;
+
+	private SubmissionState status;
+
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private FileSubmission fileSubmission;
+
 	public PictureSubmission(Team team, Picture picture, MultipartFile file) throws IOException {
-		super(team, file);
+		this.team = team;
 		this.picture = picture;
+		this.status = SubmissionState.PENDING;
+		this.fileSubmission = new FileSubmission(file);
+	}
+
+	public void approve() {
+		this.status = SubmissionState.APPROVED;
+	}
+
+	// todo string met reden waarom
+	public void deny() {
+		this.status = SubmissionState.DENIED;
 	}
 }

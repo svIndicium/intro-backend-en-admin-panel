@@ -23,7 +23,7 @@ const routes: RouteRecordRaw[] = [
             { path: 'login', component: Login },
             { path: 'home', component: AdminHome},
             { path: 'team', component: CreateTeam},
-            { path: 'submissions/picture/:id', component: PictureSubmission},
+            { path: 'submissions/picture/:id/team/:teamId', component: PictureSubmission},
             { path: 'submissions/challenge/:id/team/:teamId', component: ChallengeSubmission},
             { path: 'challenges', component: CreateChallenges },
             { path: 'pictures', component: CreatePictures },

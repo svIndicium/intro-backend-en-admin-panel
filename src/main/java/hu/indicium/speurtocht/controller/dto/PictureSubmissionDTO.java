@@ -1,4 +1,6 @@
 package hu.indicium.speurtocht.controller.dto;
 
-public record PictureSubmissionDTO(String submittedBy, Long submittedOn) {
+import hu.indicium.speurtocht.domain.SubmissionState;
+
+public record PictureSubmissionDTO(Long id, SubmissionState state) {
 }
