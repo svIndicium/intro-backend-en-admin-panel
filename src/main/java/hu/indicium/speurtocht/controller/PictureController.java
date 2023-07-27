@@ -52,18 +52,12 @@ public class PictureController {
 		}
 	}
 
-//	@Operation(summary = "Get a list of picture id's")
-//	@GetMapping
-//	public List<Long> pictures() {
-//		return this.pictureService.getAll().stream().map(Picture::getId).toList();
-//	}
-
 	@Operation(summary = "Get image file of a particular location")
-	@GetMapping("/{id}/file")
+	@GetMapping("/{pictureId}/file")
 	@Transactional
-	public ResponseEntity<byte[]> getContent(@PathVariable Long id) {
+	public ResponseEntity<byte[]> getContent(@PathVariable Long pictureId) {
 		HttpHeaders responseHeaders = new HttpHeaders();
-		PictureFile file = this.pictureService.getFile(id);
+		PictureFile file = this.pictureService.getFile(pictureId);
 		responseHeaders.set("Content-Type", file.getType());
 		return ResponseEntity
 				.ok()
@@ -71,13 +65,10 @@ public class PictureController {
 				.body(file.getContent());
 	}
 
-	@Operation(
-			summary = "Get my team's picture submissions",
-			description = "Get my team's picture submissions grouped by the picture id it was submitted to."
-	)
+	@Operation(summary = "Get list of pictures")
 	@GetMapping
-	public Collection<PictureSubmissionDTO> getTeamPictures() {
-		return this.pictureService.getTeamsPictures(authUtils.getTeam()).values();
+	public Collection<PictureSubmissionDTO> getPictures() {
+		return this.pictureService.getTeamsPictures(this.authUtils.getTeam()).values();
 	}
 
 	@Operation(summary = "Create submission for a location")
@@ -110,13 +101,6 @@ public class PictureController {
 				.map((submission -> new SubmissionDTO(submission.getPicture().getId(), submission.getTeam().getName(), submission.getTeam().getId())))
 				.toList();
 	}
-
-//	@Operation(summary = "Get data about a picture submission")
-//	@GetMapping("/{pictureId}/teams/{teamId}")
-//	public PictureSubmissionDTO getSubmission(@PathVariable Long pictureId, @PathVariable UUID teamId) {
-//		PictureSubmission submission = this.pictureService.getSubmission(this.teamService.getTeam(teamId), pictureId);
-//		return new PictureSubmissionDTO(submission.getTeam().getName(), submission.getPicture().getId());
-//	}
 
 	@Operation(summary = "Approve a picture submission")
 	@PatchMapping("/{pictureId}/teams/{teamId}/approve")
