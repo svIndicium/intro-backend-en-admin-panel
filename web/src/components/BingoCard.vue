@@ -6,7 +6,7 @@ const pictureIds = ref<{data: string, id: string, state: string}[]>([])
 fetchJsonWithAuth<{id:string, state: string}[]>("/api/pictures")
     .then(async (e) => {
       const temp = e.map(async (obj) => {
-        const data = await fetchWithAuth(`/api/pictures/${obj.id}/file`)
+        const data = await fetch(`/api/pictures/${obj.id}/file`)
             .then(r => r.blob())
             .then(a => URL.createObjectURL(a))
         return { id: obj.id, state: obj.state, data }

@@ -29,7 +29,7 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(request -> request.requestMatchers("/swagger-ui/**", "/swagger-ui.html","/v3/api-docs/**").permitAll())
-
+				.authorizeHttpRequests(request -> request.requestMatchers("/pictures/{pictureId}/file").permitAll())
 				.authorizeHttpRequests(request -> request.requestMatchers("/authenticate").permitAll())
 				.authorizeHttpRequests(request -> request.anyRequest().authenticated())
 				.sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
