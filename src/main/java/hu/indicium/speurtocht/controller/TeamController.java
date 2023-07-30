@@ -3,6 +3,7 @@ package hu.indicium.speurtocht.controller;
 import hu.indicium.speurtocht.controller.dto.CreateTeamDTO;
 import hu.indicium.speurtocht.controller.dto.LeaderboardDTO;
 import hu.indicium.speurtocht.controller.dto.PointsDTO;
+import hu.indicium.speurtocht.controller.dto.ScoreDTO;
 import hu.indicium.speurtocht.security.AuthUtils;
 import hu.indicium.speurtocht.security.service.impl.AuthenticationServiceImpl;
 import hu.indicium.speurtocht.service.ChallengeService;
@@ -51,10 +52,10 @@ public class TeamController {
 			summary = "Get my team's score",
 			description = "Get amount of challenge points awarded and picture locations are approved."
 	)
-	@GetMapping("/points")
-	public PointsDTO points() {
+	@GetMapping("/score")
+	public ScoreDTO points() {
 		Team team = this.authUtils.getTeam();
-		return new PointsDTO(this.challengeService.getTeamPoints(team), this.pictureService.getTeamPoints(team));
+		return new ScoreDTO(team.getName(), new PointsDTO(this.challengeService.getTeamPoints(team), this.pictureService.getTeamPoints(team)));
 	}
 
 	private static class LeaderboardComparator implements Comparator<LeaderboardDTO> {
