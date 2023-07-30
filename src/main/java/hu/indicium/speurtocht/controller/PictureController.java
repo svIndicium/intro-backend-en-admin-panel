@@ -77,8 +77,9 @@ public class PictureController {
 			@ApiResponse(responseCode = "400", description = "Failed to parse image."),
 			@ApiResponse(responseCode = "403", description = "There's already a image submitted for this location.")
 	})
-	@PostMapping(value = "/{pictureId}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+	@PostMapping(value = "/{pictureId}")
 	public void createSubmission(@PathVariable Long pictureId, @RequestParam("file") MultipartFile file) {
+		if (file.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "file is empty");
 		try {
 			this.pictureService.createSubmission(
 					this.authUtils.getTeam(),

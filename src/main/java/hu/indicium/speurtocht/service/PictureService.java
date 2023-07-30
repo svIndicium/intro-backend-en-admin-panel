@@ -45,7 +45,7 @@ public class PictureService {
 	}
 
 	public PictureSubmission createSubmission(Team team, Picture picture, MultipartFile file) throws IOException, AlreadyApprovedException {
-		if (this.submissionRepository.existsByTeamAndPictureAndStatus(team, picture, SubmissionState.APPROVED)) throw new AlreadyApprovedException();
+		if (this.submissionRepository.existsByTeamAndPictureAndStatusIn(team, picture, List.of(SubmissionState.PENDING, SubmissionState.APPROVED))) throw new AlreadyApprovedException();
 		return this.submissionRepository.save(new PictureSubmission(team, picture, file));
 	}
 

@@ -9,6 +9,7 @@ import hu.indicium.speurtocht.service.PictureService;
 import hu.indicium.speurtocht.service.TeamService;
 import hu.indicium.speurtocht.utils.StartUpMultipartFile;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Random;
 
 @Component
+@Slf4j
 @AllArgsConstructor
 public class StartUp implements CommandLineRunner {
 
@@ -67,11 +69,7 @@ public class StartUp implements CommandLineRunner {
 			if (new Random().nextInt(10) >= 7) {
 				PictureSubmission submission = this.pictureService.createSubmission(teamService.getAll().get(0), picture, result);
 			}
-
-
-//			System.out.println(submission);
-//			System.out.println(picture);
-
+			log.info("created location: " + i);
 		}
 
 		String test = """
@@ -167,11 +165,13 @@ public class StartUp implements CommandLineRunner {
 
 		for (String s : test.split("\n")) {
 			String[] split = s.split("	");
-			System.out.println(Arrays.toString(split));
+			log.info(Arrays.toString(split));
 			Challenge challenge = this.challengeService.save(split[1], split[2], Integer.parseInt(split[3]));
 			if (new Random().nextInt(88) >= 80) {
 				this.challengeService.createSubmission(teamService.getAll().get(0), challenge, new MultipartFile[] {result, result, result});
 			}
 		}
+
+		log.info("start up complete");
 	}
 }
