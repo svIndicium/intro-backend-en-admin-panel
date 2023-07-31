@@ -1,9 +1,9 @@
 package hu.indicium.speurtocht.service;
 
+import hu.indicium.speurtocht.domain.Team;
 import hu.indicium.speurtocht.repository.TeamRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import hu.indicium.speurtocht.domain.Team;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,5 +24,9 @@ public class TeamService {
 
 	public List<Team> getAll() {
 		return repository.findAll();
+	}
+
+	public Team getTeamByName(String name) {
+		return this.repository.findByName(name);
 	}
 }

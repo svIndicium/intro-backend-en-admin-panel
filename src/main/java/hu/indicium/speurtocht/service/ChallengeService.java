@@ -12,8 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.*;
-import java.util.function.Function;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -66,6 +67,7 @@ public class ChallengeService {
 										challenge.getTitle(),
 										challenge.getChallenge(),
 										challenge.getPoints(),
+										null,
 										null
 								)
 						)
@@ -82,7 +84,8 @@ public class ChallengeService {
 										submission.getChallenge().getTitle(),
 										submission.getChallenge().getChallenge(),
 										submission.getChallenge().getPoints(),
-										submission.getStatus()
+										submission.getStatus(),
+										submission.getSubmittedAt()
 								)
 						)
 				);
@@ -97,13 +100,13 @@ public class ChallengeService {
 	}
 
 	public void approve(Team team, Long id) {
-		ChallengeSubmission submission = this.getSubmission(team, id);
+		ChallengeSubmission submission = this.submissionRepository.getReferenceById(new ChallengeSubmissionId(team, this.getChallenge(id)));
 		submission.approve();
 		this.submissionRepository.save(submission);
 	}
 
 	public void deny(Team team, Long id) {
-		ChallengeSubmission submission = this.getSubmission(team, id);
+		ChallengeSubmission submission = this.submissionRepository.getReferenceById(new ChallengeSubmissionId(team, this.getChallenge(id)));
 		submission.deny();
 		this.submissionRepository.save(submission);
 	}

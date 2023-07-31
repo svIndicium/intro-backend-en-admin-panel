@@ -16,7 +16,7 @@ import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
   fetchJsonWithAuth<{ id: string }[]>("/api/pictures")
       .then(async (e) => {
         const temp = e.map(async (obj) => {
-          const data = await fetchWithAuth(`/api/pictures/${obj.id}/file`)
+          const data = await fetchWithAuth(`/api/pictures/${obj.id}/thumbnail`)
               .then(r => r.blob())
               .then(a => URL.createObjectURL(a))
           return { id: obj.id, data }

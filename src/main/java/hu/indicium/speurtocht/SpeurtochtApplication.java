@@ -13,7 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 		info = @Info(
 				title = "Speurtocht 88",
 				description = """
-						Speurtocht 88 is developed by study association Indicium to introduce new student to get to know their fellow students and the city where they will study.\n
+						Speurtocht 88 is developed by study association Indicium to introduce new students to the city and to get to know their fellow students.\n
 						The groups of students will play 2 games parallel. The first game is where they need to find a location given a picture of said location. The second game is a Crazy 88 game. It's a game where students try to complete as much or all 88 challenges given by the organizers.\n
 						For organizers Speurtocht 88 provides a simple solution to review and approve submissions.
 						"""

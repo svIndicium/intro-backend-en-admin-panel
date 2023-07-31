@@ -1,56 +1,37 @@
-package hu.indicium.speurtocht;
+package hu.indicium.speurtocht.startup;
 
-import hu.indicium.speurtocht.domain.*;
-import hu.indicium.speurtocht.security.domain.User;
-import hu.indicium.speurtocht.security.repository.UserRepository;
-import hu.indicium.speurtocht.security.service.impl.AuthenticationServiceImpl;
+import hu.indicium.speurtocht.domain.Challenge;
+import hu.indicium.speurtocht.domain.ChallengeSubmission;
+import hu.indicium.speurtocht.domain.Team;
 import hu.indicium.speurtocht.service.ChallengeService;
-import hu.indicium.speurtocht.service.PictureService;
 import hu.indicium.speurtocht.service.TeamService;
 import hu.indicium.speurtocht.utils.StartUpMultipartFile;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
 @Component
 @Slf4j
 @AllArgsConstructor
-public class StartUp implements CommandLineRunner {
+@Order(3)
+@Transactional
+public class ChallengeStartUp implements CommandLineRunner {
 
 	private TeamService teamService;
-	private PictureService pictureService;
 	private ChallengeService challengeService;
-
-	private AuthenticationServiceImpl authenticationService;
 
 	@Override
 	public void run(String... args) throws Exception {
-		if (this.teamService.getAll().size() == 0) {
-			for (int i = 1; i < 11; i++) {
-				Team team = this.teamService.save("team-" + i);
-				authenticationService.createUser(team, "password");
-			}
-		}
-
-
-		authenticationService.createAdmin("admin", "admin");
-
-//		User user = this.userRepository.save(User.createParticipant(team, new BCryptPasswordEncoder().encode("password")));
-//		System.out.println(team);
-//		System.out.println(user);
-
 		Path path = Paths.get("./nature-1.jpg");
 		String name = "nature-1.jpg";
 		String originalFileName = "nature-1.jpg";
@@ -64,14 +45,7 @@ public class StartUp implements CommandLineRunner {
 		MultipartFile result = new StartUpMultipartFile(name,
 				originalFileName, contentType, content);
 
-		for (int i = 0; i < 25; i++) {
-			Picture picture = this.pictureService.createPictures(new Coordinate(1.0f, 1.0f), result);
-			if (new Random().nextInt(10) >= 7) {
-				PictureSubmission submission = this.pictureService.createSubmission(teamService.getAll().get(0), picture, result);
-			}
-			log.info("created location: " + i);
-		}
-
+		Team team = teamService.getTeamByName("team-1");
 		String test = """
 				#1	High five!	Deel 15 gratis highfives uit aan onbekenden op straat.	5	
 				#2	Ali Banaan	Maak een rap over bananen en geef de performance over een beat.	20	
@@ -165,13 +139,21 @@ public class StartUp implements CommandLineRunner {
 
 		for (String s : test.split("\n")) {
 			String[] split = s.split("	");
-			log.info(Arrays.toString(split));
 			Challenge challenge = this.challengeService.save(split[1], split[2], Integer.parseInt(split[3]));
-			if (new Random().nextInt(88) >= 80) {
-				this.challengeService.createSubmission(teamService.getAll().get(0), challenge, new MultipartFile[] {result, result, result});
+			log.info("created challenge: #" + challenge.getId() + " " + challenge.getTitle());
+			int randomInt = new Random().nextInt(88);
+			if (randomInt >= 58) {
+				ChallengeSubmission submission = this.challengeService.createSubmission(team, challenge, new MultipartFile[]{result, result, result});
+				if (randomInt >= 68) {
+					if (randomInt >= 78) {
+						this.challengeService.approve(team, challenge.getId());
+						log.info("approved submission for challenge: #" + challenge.getId() + " " + challenge.getTitle());
+					} else {
+						this.challengeService.deny(team, challenge.getId());
+						log.info("denied submission for challenge: #" + challenge.getId() + " " + challenge.getTitle());
+					}
+				}
 			}
 		}
-
-		log.info("start up complete");
 	}
 }

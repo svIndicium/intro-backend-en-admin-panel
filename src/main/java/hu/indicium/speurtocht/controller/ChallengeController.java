@@ -4,7 +4,10 @@ import hu.indicium.speurtocht.controller.dto.ChallengeStatusDTO;
 import hu.indicium.speurtocht.controller.dto.ChallengeSubmissionDTO;
 import hu.indicium.speurtocht.controller.dto.CreateChallengeDTO;
 import hu.indicium.speurtocht.controller.dto.SubmissionDTO;
-import hu.indicium.speurtocht.domain.*;
+import hu.indicium.speurtocht.domain.Challenge;
+import hu.indicium.speurtocht.domain.ChallengeSubmission;
+import hu.indicium.speurtocht.domain.FileSubmission;
+import hu.indicium.speurtocht.domain.SubmissionState;
 import hu.indicium.speurtocht.security.AuthUtils;
 import hu.indicium.speurtocht.service.ChallengeService;
 import hu.indicium.speurtocht.service.TeamService;
@@ -22,12 +25,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 
 @Tag(
@@ -57,7 +60,53 @@ public class ChallengeController {
 	@Operation(summary = "Get list of challenges")
 	@GetMapping
 	public Collection<ChallengeStatusDTO> getChallenges() {
-		return this.challengeService.getTeamChallenges(this.authUtils.getTeam()).values();
+		return this.challengeService.getTeamChallenges(this.authUtils.getTeam())
+				.values()
+				.stream()
+				.sorted(new ChallengeComparator())
+				.toList();
+	}
+
+	private static class ChallengeComparator implements Comparator<ChallengeStatusDTO> {
+
+		private static final List<SubmissionState> STATE_SET = Arrays.asList(SubmissionState.DENIED, null, SubmissionState.PENDING, SubmissionState.APPROVED);
+
+		@Override
+		public int compare(ChallengeStatusDTO o1, ChallengeStatusDTO o2) {
+			int i1 = STATE_SET.indexOf(o1.state());
+			int i2 = STATE_SET.indexOf(o2.state());
+			if (i1 == i2) {
+				if (o1.state() != null) {
+					return compareTimes(o1.submittedAt(), o2.submittedAt());
+				} else {
+					return compareIds(o1.id(), o2.id());
+				}
+			} else {
+				return comparePosition(i1, i2);
+			}
+		}
+
+		private int compareIds(Long o1, Long o2) {
+			return (int) (o1 - o2);
+		}
+
+		private int compareTimes(Instant o1, Instant o2) {
+			if (o1.isAfter(o2)) {
+				return -1;
+			} else if (o1.isBefore(o2)) {
+				return 1;
+			} else {
+				return 0;
+			}
+		}
+
+		private int comparePosition(int p1, int p2) {
+			if (p1 == p2) {
+				return 0;
+			} else {
+				return p1 - p2;
+			}
+		}
 	}
 
 	@Secured("PARTICIPANT")
