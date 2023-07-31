@@ -2,14 +2,14 @@ package hu.indicium.speurtocht.controller;
 
 import hu.indicium.speurtocht.controller.dto.PictureSubmissionDTO;
 import hu.indicium.speurtocht.controller.dto.SubmissionDTO;
-import hu.indicium.speurtocht.domain.*;
+import hu.indicium.speurtocht.domain.Coordinate;
+import hu.indicium.speurtocht.domain.FileSubmission;
+import hu.indicium.speurtocht.domain.PictureFile;
 import hu.indicium.speurtocht.security.AuthUtils;
 import hu.indicium.speurtocht.service.PictureService;
 import hu.indicium.speurtocht.service.TeamService;
 import hu.indicium.speurtocht.service.exceptions.AlreadyApprovedException;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -17,18 +17,21 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 
 @Tag(
 		name = "Picture Bingo",
@@ -63,6 +66,20 @@ public class PictureController {
 		HttpHeaders responseHeaders = new HttpHeaders();
 		responseHeaders.setCacheControl(CacheControl.maxAge(Duration.of(2, ChronoUnit.HOURS)));
 		PictureFile file = this.pictureService.getFile(pictureId);
+		responseHeaders.set("Content-Type", file.getType());
+		return ResponseEntity
+				.ok()
+				.headers(responseHeaders)
+				.body(file.getContent());
+	}
+
+	@Operation(summary = "Get thumbnail of a particular location")
+	@GetMapping("/{pictureId}/thumbnail")
+	@Transactional
+	public ResponseEntity<byte[]> getThumbnail(@PathVariable Long pictureId) {
+		HttpHeaders responseHeaders = new HttpHeaders();
+		responseHeaders.setCacheControl(CacheControl.maxAge(Duration.of(2, ChronoUnit.HOURS)));
+		PictureFile file = this.pictureService.getThumbnail(pictureId);
 		responseHeaders.set("Content-Type", file.getType());
 		return ResponseEntity
 				.ok()

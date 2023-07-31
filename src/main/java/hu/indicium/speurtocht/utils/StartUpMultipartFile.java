@@ -2,6 +2,7 @@ package hu.indicium.speurtocht.utils;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +53,7 @@ public class StartUpMultipartFile implements MultipartFile {
 
 	@Override
 	public InputStream getInputStream() throws IOException {
-		return null;
+		return new ByteArrayInputStream(this.bytes);
 	}
 
 	@Override

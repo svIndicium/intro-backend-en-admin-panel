@@ -1,6 +1,5 @@
 package hu.indicium.speurtocht.service;
 
-import hu.indicium.speurtocht.controller.dto.ChallengeStatusDTO;
 import hu.indicium.speurtocht.controller.dto.PictureSubmissionDTO;
 import hu.indicium.speurtocht.domain.*;
 import hu.indicium.speurtocht.repository.FileSubmissionRepository;
@@ -9,14 +8,14 @@ import hu.indicium.speurtocht.repository.PictureSubmissionRepository;
 import hu.indicium.speurtocht.service.exceptions.AlreadyApprovedException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,9 +26,18 @@ public class PictureService {
 	private PictureSubmissionRepository submissionRepository;
 	private FileSubmissionRepository fileSubmissionRepository;
 
+	private static final int maxImagePixelsOnOneAxis = 256;
+
 
 	public Picture createPictures(Coordinate coordinate, MultipartFile file) throws IOException {
-		return this.repository.save(new Picture(coordinate, file));
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		Thumbnails.of(file.getInputStream())
+				.size(maxImagePixelsOnOneAxis, maxImagePixelsOnOneAxis)
+				.toOutputStream(byteArrayOutputStream);
+
+		PictureFile thumbnail = new PictureFile(file.getContentType(), byteArrayOutputStream.toByteArray());
+		PictureFile original = new PictureFile(file.getContentType(), file.getBytes());
+		return this.repository.save(new Picture(coordinate, thumbnail, original));
 	}
 
 	public Picture getPicture(Long id) {
@@ -88,6 +96,10 @@ public class PictureService {
 
 	public PictureFile getFile(Long id) {
 		return this.repository.getReferenceById(id).getFile();
+	}
+
+	public PictureFile getThumbnail(Long id) {
+		return this.repository.getReferenceById(id).getThumbnail();
 	}
 
 	public FileSubmission getSubmissionFile(Team team, Long id) {

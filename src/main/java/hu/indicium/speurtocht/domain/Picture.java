@@ -2,9 +2,6 @@ package hu.indicium.speurtocht.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @Entity
 @AllArgsConstructor
@@ -18,13 +15,17 @@ public class Picture {
 	private Long id;
 
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private PictureFile thumbnail;
+
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private PictureFile file;
 
 	@Embedded
 	private Coordinate coordinate;
 
-	public Picture(Coordinate coordinate, MultipartFile multipartFile) throws IOException {
+	public Picture(Coordinate coordinate, PictureFile thumbnail, PictureFile original) {
 		this.coordinate = coordinate;
-		this.file = new PictureFile(multipartFile);
+		this.thumbnail = thumbnail;
+		this.file = original;
 	}
 }

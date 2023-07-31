@@ -10,8 +10,8 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -31,7 +31,7 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(request -> request.requestMatchers("/swagger-ui/**", "/swagger-ui.html","/v3/api-docs/**").permitAll())
-				.authorizeHttpRequests(request -> request.requestMatchers("/pictures/{pictureId}/file").permitAll())
+				.authorizeHttpRequests(request -> request.requestMatchers("/pictures/{pictureId}/file", "/pictures/{pictureId}/thumbnail").permitAll())
 				.authorizeHttpRequests(request -> request.requestMatchers("/authenticate").permitAll())
 				.authorizeHttpRequests(request -> request.anyRequest().authenticated())
 				.sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
