@@ -16,16 +16,16 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
 
 @Tag(
@@ -57,6 +57,7 @@ public class PictureController {
 	@Transactional
 	public ResponseEntity<byte[]> getContent(@PathVariable Long pictureId) {
 		HttpHeaders responseHeaders = new HttpHeaders();
+		responseHeaders.setCacheControl(CacheControl.maxAge(Duration.of(2, ChronoUnit.HOURS)));
 		PictureFile file = this.pictureService.getFile(pictureId);
 		responseHeaders.set("Content-Type", file.getType());
 		return ResponseEntity
