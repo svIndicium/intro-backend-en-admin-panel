@@ -12,6 +12,7 @@ import hu.indicium.speurtocht.service.exceptions.AlreadyApprovedException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -32,6 +35,7 @@ import java.util.*;
 		description = "Define 88 challenges that teams can complete. Teams compete against each other. The winner is the team that scores the most points."
 )
 @RestController
+@SecurityRequirement(name = "speurtocht-88")
 @RequestMapping("/challenges")
 @AllArgsConstructor
 public class ChallengeController {
@@ -42,6 +46,7 @@ public class ChallengeController {
 	private ChallengeService challengeService;
 	private TeamService teamService;
 
+	@Secured("ADMIN")
 	@Operation(summary = "Create challenges")
 	@PostMapping
 	public void createChallenges(@RequestBody List<CreateChallengeDTO> challenges) {
@@ -55,6 +60,7 @@ public class ChallengeController {
 		return this.challengeService.getTeamChallenges(this.authUtils.getTeam()).values();
 	}
 
+	@Secured("PARTICIPANT")
 	@Operation(summary = "Create submission for a challenge")
 	@ApiResponses({
 			@ApiResponse(responseCode = "200"),
@@ -77,6 +83,7 @@ public class ChallengeController {
 		}
 	}
 
+	@Secured("ADMIN")
 	@Operation(summary = "Get list of Crazy 88 submissions awaiting approval")
 	@GetMapping("/pending")
 	public List<SubmissionDTO> getPending() {
@@ -87,6 +94,7 @@ public class ChallengeController {
 				.toList();
 	}
 
+	@Secured("ADMIN")
 	@Operation(summary = "Get data about a Crazy 88 submission")
 	@GetMapping("/{challengeId}/teams/{teamId}")
 	@Transactional
@@ -101,18 +109,21 @@ public class ChallengeController {
 		);
 	}
 
+	@Secured("ADMIN")
 	@Operation(summary = "Approve a Crazy 88 submission")
 	@PatchMapping("/{challengeId}/teams/{teamId}/approve")
 	public void approve(@PathVariable Long challengeId, @PathVariable UUID teamId) {
 		this.challengeService.approve(this.teamService.getTeam(teamId), challengeId);
 	}
 
+	@Secured("ADMIN")
 	@Operation(summary = "Deny a Crazy 88 submission")
 	@PatchMapping("/{challengeId}/teams/{teamId}/deny")
 	public void deny(@PathVariable Long challengeId, @PathVariable UUID teamId) {
 		this.challengeService.deny(this.teamService.getTeam(teamId), challengeId);
 	}
 
+	@Secured("ADMIN")
 	@Operation(summary = "Get a file from a Crazy 88 submission")
 	@GetMapping("/submissions/{fileId}/file")
 	@Transactional

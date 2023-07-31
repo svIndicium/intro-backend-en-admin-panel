@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import hu.indicium.speurtocht.domain.Team;
 
@@ -23,6 +24,7 @@ import java.util.List;
 
 @Tag(name = "Team")
 @RestController
+@SecurityRequirement(name = "speurtocht-88")
 @RequestMapping("/teams")
 @AllArgsConstructor
 public class TeamController {
@@ -34,6 +36,7 @@ public class TeamController {
 	private ChallengeService challengeService;
 	private AuthenticationServiceImpl authenticationService;
 
+	@Secured("ADMIN")
 	@Operation(
 			summary = "Get current leaderboard",
 			description = "Get a list of teams and their score. List is already sorted by order."
@@ -48,6 +51,7 @@ public class TeamController {
 				.toList();
 	}
 
+	@Secured("PARTICIPANT")
 	@Operation(
 			summary = "Get my team's score",
 			description = "Get amount of challenge points awarded and picture locations are approved."
@@ -72,6 +76,7 @@ public class TeamController {
 		}
 	}
 
+	@Secured("ADMIN")
 	@Operation(
 			summary = "Create a new team"
 	)

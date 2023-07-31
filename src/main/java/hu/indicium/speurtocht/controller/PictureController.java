@@ -12,11 +12,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -33,6 +35,7 @@ import java.util.*;
 		description = "Search through a pre-defined area for these locations."
 )
 @RestController
+@SecurityRequirement(name = "speurtocht-88")
 @RequestMapping("/pictures")
 @AllArgsConstructor
 public class PictureController {
@@ -43,6 +46,7 @@ public class PictureController {
 	private PictureService pictureService;
 	private TeamService teamService;
 
+	@Secured("ADMIN")
 	@Operation(summary = "Upload a picture for a new location")
 	@PostMapping
 	public void createPictures(@RequestParam("files") MultipartFile[] files) throws IOException {
@@ -72,6 +76,7 @@ public class PictureController {
 		return this.pictureService.getTeamsPictures(this.authUtils.getTeam()).values();
 	}
 
+	@Secured("PARTICIPANT")
 	@Operation(summary = "Create submission for a location")
 	@ApiResponses({
 			@ApiResponse(responseCode = "200"),
@@ -95,6 +100,7 @@ public class PictureController {
 		}
 	}
 
+	@Secured("ADMIN")
 	@Operation(summary = "Get list of picture submissions awaiting approval")
 	@GetMapping("/pending")
 	public List<SubmissionDTO> getPending() {
@@ -104,18 +110,21 @@ public class PictureController {
 				.toList();
 	}
 
+	@Secured("ADMIN")
 	@Operation(summary = "Approve a picture submission")
 	@PatchMapping("/{pictureId}/teams/{teamId}/approve")
 	public void approve(@PathVariable Long pictureId, @PathVariable UUID teamId) {
 		this.pictureService.approve(this.teamService.getTeam(teamId), pictureId);
 	}
 
+	@Secured("ADMIN")
 	@Operation(summary = "Deny a picture submission")
 	@PatchMapping("/{pictureId}/teams/{teamId}/deny")
 	public void deny(@PathVariable Long pictureId, @PathVariable UUID teamId) {
 		this.pictureService.deny(this.teamService.getTeam(teamId), pictureId);
 	}
 
+	@Secured("ADMIN")
 	@Operation(summary = "Get a submission's submitted image")
 	@GetMapping("/{pictureId}/teams/{teamId}/file")
 	@Transactional
