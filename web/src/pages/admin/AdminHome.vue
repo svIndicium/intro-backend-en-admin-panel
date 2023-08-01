@@ -2,27 +2,20 @@
 import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
   import {onBeforeUnmount, ref} from "vue";
 
+const leaderboard = ref<{id: string, teamname: string, points: { challengePoints: number, picturesApproved: number }}[]>([])
   const pictureSubmissions = ref<{ id: string, teamName: string, teamId: string }[]>([])
   const challengeSubmissions = ref<{ id: string, teamName: string, teamId: string }[]>([])
   const challenges = ref<{ id: string, title: string, challenge: string, points: number}[]>([])
-  const pictureIds = ref<{data: string, id: string }[]>([])
+  const pictureIds = ref<{ id: string }[]>([])
+
   fetchJsonWithAuth<{ id: string, title: string, challenge: string, points: number}[]>("/api/challenges")
       .then(e => challenges.value = e)
 
-  const leaderboard = ref<{id: string, teamname: string, points: { challengePoints: number, picturesApproved: number }}[]>([])
   fetchJsonWithAuth<{id: string, teamname: string, points: { challengePoints: number, picturesApproved: number }}[]>("/api/teams/leaderboard")
       .then(e => leaderboard.value = e)
 
   fetchJsonWithAuth<{ id: string }[]>("/api/pictures")
-      .then(async (e) => {
-        const temp = e.map(async (obj) => {
-          const data = await fetchWithAuth(`/api/pictures/${obj.id}/thumbnail`)
-              .then(r => r.blob())
-              .then(a => URL.createObjectURL(a))
-          return { id: obj.id, data }
-        })
-        pictureIds.value = await Promise.all(temp)
-      })
+      .then((e) => pictureIds.value = e)
 
 
   const fetcherFunction = () => {
@@ -71,8 +64,8 @@ import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
       </table>
     </div>
     <div class="picture-grid">
-      <router-link to="/admin/pictures" class="image-container" v-for="x in 25">
-        <img :src="`/nature-${(x % 4) + 1}.jpg`" alt=""/>
+      <router-link to="/admin/pictures" class="image-container" v-for="picture in pictureIds">
+        <img :src="`/api/pictures/${picture.id}/thumbnail`" alt=""/>
       </router-link>
     </div>
     <div>

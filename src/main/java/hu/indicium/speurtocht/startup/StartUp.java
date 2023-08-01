@@ -5,7 +5,8 @@ import hu.indicium.speurtocht.security.service.impl.AuthenticationServiceImpl;
 import hu.indicium.speurtocht.service.TeamService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -13,15 +14,17 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @AllArgsConstructor
 @Order(1)
-public class StartUp implements CommandLineRunner {
+public class StartUp implements ApplicationRunner {
 
 	private TeamService teamService;
 
 	private AuthenticationServiceImpl authenticationService;
 
 	@Override
-	public void run(String... args) throws Exception {
-		if (this.teamService.getAll().size() == 0) {
+	public void run(ApplicationArguments args) throws Exception {
+		if (!args.containsOption("fill")) return;
+
+		if (this.teamService.getAll().isEmpty()) {
 			for (int i = 1; i < 11; i++) {
 				Team team = this.teamService.save("team-" + i);
 				authenticationService.createUser(team, "password");

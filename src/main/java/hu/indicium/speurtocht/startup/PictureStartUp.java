@@ -8,7 +8,8 @@ import hu.indicium.speurtocht.service.TeamService;
 import hu.indicium.speurtocht.utils.StartUpMultipartFile;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,13 +26,15 @@ import java.util.Random;
 @AllArgsConstructor
 @Order(2)
 @Transactional
-public class PictureStartUp implements CommandLineRunner {
+public class PictureStartUp implements ApplicationRunner {
 
 	private TeamService teamService;
 	private PictureService pictureService;
 
 	@Override
-	public void run(String... args) throws Exception {
+	public void run(ApplicationArguments args) throws Exception {
+		if (!args.containsOption("fill")) return;
+
 		Path path = Paths.get("./nature-1.jpg");
 		String name = "nature-1.jpg";
 		String originalFileName = "nature-1.jpg";
