@@ -34,12 +34,12 @@ import {onBeforeUnmount, ref, watch} from "vue";
       }[]>("/api/challenges/pending")
     ])
 
+    pictureSubmissions.value = newP
+    challengeSubmissions.value = newC
+
     if (inactive.value && (newP.length > 0 || newC.length > 0)) {
       new Audio('/notification.mp3').play()
     }
-
-    pictureSubmissions.value = newP
-    challengeSubmissions.value = newC
   }
 
   fetcherFunction()
