@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
-  import {onBeforeUnmount, ref} from "vue";
+import {onBeforeUnmount, ref, watch} from "vue";
 
-const leaderboard = ref<{id: string, teamname: string, points: { challengePoints: number, picturesApproved: number }}[]>([])
+  const leaderboard = ref<{id: string, teamname: string, points: { challengePoints: number, picturesApproved: number }}[]>([])
   const pictureSubmissions = ref<{ id: string, teamName: string, teamId: string }[]>([])
   const challengeSubmissions = ref<{ id: string, teamName: string, teamId: string }[]>([])
   const challenges = ref<{ id: string, title: string, challenge: string, points: number}[]>([])
   const pictureIds = ref<{ id: string }[]>([])
+
+  const inactive = ref<boolean>(false)
 
   fetchJsonWithAuth<{ id: string, title: string, challenge: string, points: number}[]>("/api/challenges")
       .then(e => challenges.value = e)
@@ -18,25 +20,43 @@ const leaderboard = ref<{id: string, teamname: string, points: { challengePoints
       .then((e) => pictureIds.value = e)
 
 
-  const fetcherFunction = () => {
-    fetchJsonWithAuth<{
-      id: string,
-      teamName: string,
-      teamId: string,
-    }[]>("/api/pictures/pending")
-        .then(e => pictureSubmissions.value = e)
-    fetchJsonWithAuth<{
-      id: string,
-      teamName: string,
-      teamId: string,
-    }[]>("/api/challenges/pending")
-        .then(e => challengeSubmissions.value = e)
+  const fetcherFunction = async () => {
+    const [newP, newC] = await Promise.all([
+      fetchJsonWithAuth<{
+        id: string,
+        teamName: string,
+        teamId: string,
+      }[]>("/api/pictures/pending"),
+      fetchJsonWithAuth<{
+        id: string,
+        teamName: string,
+        teamId: string,
+      }[]>("/api/challenges/pending")
+    ])
 
+    if (inactive.value && (newP.length > 0 || newC.length > 0)) {
+      new Audio('/notification.mp3').play()
+    }
+
+    pictureSubmissions.value = newP
+    challengeSubmissions.value = newC
   }
+
   fetcherFunction()
   const refresher = setInterval(fetcherFunction, 1000 * 60)
 
-  onBeforeUnmount(() => clearInterval(refresher))
+  let time = setTimeout(() => inactive.value = true, 1000 * 60 * 5)
+  const clearInactivity = () => {
+    clearTimeout(time);
+    time = setTimeout(() => inactive.value = true, 1000 * 60 * 5)
+  }
+
+window.onmousemove = clearInactivity;
+
+  onBeforeUnmount(() => {
+    clearInterval(refresher)
+    clearTimeout(time)
+  })
 
 </script>
 

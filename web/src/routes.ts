@@ -13,14 +13,10 @@ import PictureSubmission from "./pages/admin/PictureSubmission.vue";
 import ChallengeSubmission from "./pages/admin/ChallengeSubmission.vue";
 
 const routes: RouteRecordRaw[] = [
-    { path: '/', component: Home },
-    { path: '/pictures', component: Pictures },
-    { path: '/challenges', component: Challenges },
-    { path: '/leaderboard', component: Leaderboard },
+    { path: '/', component: Login },
     {
         path: '/admin',
         children: [
-            { path: 'login', component: Login },
             { path: 'home', component: AdminHome},
             { path: 'team', component: CreateTeam},
             { path: 'submissions/picture/:id/team/:teamId', component: PictureSubmission},
