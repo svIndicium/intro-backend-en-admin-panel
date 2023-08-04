@@ -36,8 +36,11 @@ import {onBeforeUnmount, ref, watch} from "vue";
 
     pictureSubmissions.value = newP
     challengeSubmissions.value = newC
+    const total = newP.length + newC.length
 
-    if (inactive.value && (newP.length > 0 || newC.length > 0)) {
+    document.title = total > 0 ? `Home (${newP.length + newC.length}) - Speurtocht 88` : `Home - Speurtocht 88`
+
+    if (inactive.value && total > 0) {
       new Audio('/notification.mp3').play()
     }
   }
@@ -47,6 +50,7 @@ import {onBeforeUnmount, ref, watch} from "vue";
 
   let time = setTimeout(() => inactive.value = true, 1000 * 60 * 5)
   const clearInactivity = () => {
+    inactive.value = false;
     clearTimeout(time);
     time = setTimeout(() => inactive.value = true, 1000 * 60 * 5)
   }
@@ -61,8 +65,8 @@ window.onmousemove = clearInactivity;
 </script>
 
 <template>
-  <div class="admin-grid">
-    <div>
+  <main class="admin-grid" aria-label="admin dashboard">
+    <section aria-label="leaderboard">
       <table id="leaderboard-table">
         <thead>
         <tr>
@@ -82,13 +86,17 @@ window.onmousemove = clearInactivity;
         <tr class="create-new"><td colspan="4"><router-link to="/admin/team">create team</router-link></td></tr>
         </tbody>
       </table>
-    </div>
-    <div class="picture-grid">
-      <router-link to="/admin/pictures" class="image-container" v-for="picture in pictureIds">
-        <img :src="`/api/pictures/${picture.id}/thumbnail`" alt=""/>
-      </router-link>
-    </div>
-    <div>
+    </section>
+    <section aria-label="picture locations">
+      <ul class="picture-grid" aria-label="list of pictures">
+        <li v-for="picture in pictureIds">
+          <router-link :to="`/admin/picture/${picture.id}`" class="image-container" >
+            <img :src="`/api/pictures/${picture.id}/thumbnail`" :alt="`navigate to picture location number ${picture.id}`"/>
+          </router-link>
+        </li>
+      </ul>
+    </section>
+    <section aria-label="challenges">
       <table id="challenge-table">
         <thead>
         <tr>
@@ -111,8 +119,8 @@ window.onmousemove = clearInactivity;
         <tr class="create-new"><td colspan="3"><router-link to="/admin/challenges">create challenges</router-link></td></tr>
         </tbody>
       </table>
-    </div>
-    <div>
+    </section>
+    <section aria-label="pending submissions">
       <table>
         <thead>
         <tr>
@@ -131,8 +139,8 @@ window.onmousemove = clearInactivity;
         </tr>
         </tbody>
       </table>
-    </div>
-  </div>
+    </section>
+  </main>
 </template>
 
 <style scoped lang="scss">
@@ -162,15 +170,19 @@ window.onmousemove = clearInactivity;
 
   }
 
-  > .picture-grid {
+  ul.picture-grid {
+    list-style: none;
     display: grid;
     grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
     overflow: hidden;
-
-    .image-container {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    > li {
       position: relative;
-      img {
+      > * > img {
         height: 100%;
         width: 100%;
         object-fit: cover;
@@ -179,10 +191,9 @@ window.onmousemove = clearInactivity;
         top: 0;
       }
     }
-
-
   }
 }
+
 table {
   width: 100%;
   border-collapse: collapse;

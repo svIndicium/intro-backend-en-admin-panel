@@ -2,6 +2,7 @@
   import {useRouter} from "vue-router";
   import DevOnly from "../../components/DevOnly.vue";
 
+  document.title = 'Speurtocht 88'
   const router = useRouter()
 
   async function login(e) {

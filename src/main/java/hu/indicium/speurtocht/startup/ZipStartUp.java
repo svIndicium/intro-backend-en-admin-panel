@@ -45,10 +45,14 @@ public class ZipStartUp implements ApplicationRunner {
 		List<String> zipLocation = args.getOptionValues("zip");
 
 		if (zipLocation != null) {
-			unzip(zipLocation.get(0));
-			readPictures();
-			readChallenges();
-			readTeams();
+			String userZipInput = zipLocation.get(0);
+			int dotIndex = userZipInput.lastIndexOf(".");
+			int slashIndex = userZipInput.lastIndexOf(File.separator);
+			String zipDir = userZipInput.substring(slashIndex + 1, dotIndex);
+			unzip(userZipInput, zipDir);
+			readPictures(zipDir);
+			readChallenges(zipDir);
+			readTeams(zipDir);
 		}
 
 		if (username != null && password != null) {
@@ -61,9 +65,9 @@ public class ZipStartUp implements ApplicationRunner {
 		}
 	}
 
-	public void readPictures() throws IOException {
-		File dir = new File(unzippedLocation + File.separator + "speurtocht-88" + File.separator + "locations");
-		for (File file : Arrays.stream(dir.listFiles()).sorted(new Comparator<File>() {
+	public void readPictures(String zipDir) throws IOException {
+		File dir = new File(unzippedLocation + File.separator + zipDir + File.separator + "locations");
+		for (File file : Arrays.stream(dir.listFiles()).filter(file -> file.getName().endsWith(".png")).sorted(new Comparator<File>() {
 			@Override
 			public int compare(File o1, File o2) {
 				return Integer.parseInt(o1.getName().replaceAll( "[^\\d,]", "" )) - Integer.parseInt(o2.getName().replaceAll( "[^\\d,]", "" ));
@@ -73,18 +77,21 @@ public class ZipStartUp implements ApplicationRunner {
 			try {
 				content = Files.readAllBytes(file.toPath());
 			} catch (final IOException e) {
-
 				log.error("Failed to read file", e);
 			}
 			MultipartFile result = new StartUpMultipartFile(file.getName(),
 					file.getName(), "image/png", content);
-			Picture picture = this.pictureService.createPictures(new Coordinate(1.0f, 1.0f), result);
+			try {
+				Picture picture = this.pictureService.createPictures(new Coordinate(1.0f, 1.0f), result);
+			} catch (Exception e) {
+				log.error("Failed to read file:\t" + file.getName(), e);
+			}
 			log.info("Created picture:\t" + file.getName());
 		}
 	}
 
-	public void readChallenges() throws IOException {
-		Files.lines(Paths.get(unzippedLocation + File.separator + "speurtocht-88" + File.separator + "challenges.tsv"))
+	public void readChallenges(String zipDir) throws IOException {
+		Files.lines(Paths.get(unzippedLocation + File.separator + zipDir + File.separator + "challenges.tsv"))
 				.skip(1)
 				.forEach(line -> {
 					String[] split = line.split("	");
@@ -93,8 +100,8 @@ public class ZipStartUp implements ApplicationRunner {
 				});
 	}
 
-	public void readTeams() throws IOException {
-		Files.lines(Paths.get(unzippedLocation + File.separator + "speurtocht-88" + File.separator + "teams.tsv"))
+	public void readTeams(String zipDir) throws IOException {
+		Files.lines(Paths.get(unzippedLocation + File.separator + zipDir + File.separator + "teams.tsv"))
 				.skip(1)
 				.forEach(line -> {
 					String[] split = line.split("	");
@@ -104,16 +111,17 @@ public class ZipStartUp implements ApplicationRunner {
 				});
 	}
 
-	public void unzip(String zipFilePath) throws IOException {
+	public void unzip(String zipFilePath, String zipDir) throws IOException {
 		File destDir = new File(unzippedLocation);
+		deleteFolder(destDir);
 		if (!destDir.exists()) {
-			destDir.mkdir();
+			new File(unzippedLocation + File.separator + zipDir + File.separator + "locations").mkdirs();
 		}
 		ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath));
 		ZipEntry entry = zipIn.getNextEntry();
 		// iterates over entries in the zip file
 		while (entry != null) {
-			if (!entry.getName().startsWith("speurtocht-88/")) {
+			if (!entry.getName().startsWith(zipDir)) {
 				zipIn.closeEntry();
 				entry = zipIn.getNextEntry();
 				continue;
@@ -142,5 +150,19 @@ public class ZipStartUp implements ApplicationRunner {
 			bos.write(bytesIn, 0, read);
 		}
 		bos.close();
+	}
+
+	private static void deleteFolder(File folder) {
+		File[] files = folder.listFiles();
+		if(files!=null) { //some JVMs return null for empty dirs
+			for(File f: files) {
+				if(f.isDirectory()) {
+					deleteFolder(f);
+				} else {
+					f.delete();
+				}
+			}
+		}
+		folder.delete();
 	}
 }
