@@ -161,7 +161,7 @@ window.onmousemove = clearInactivity;
     //border: white solid 1px;
     //margin: 1rem;
     //border-radius: 1rem;
-    overflow-x: scroll;
+    overflow: auto;
     //overflow-y: hidden;
 
     //overflow-x: scroll;
