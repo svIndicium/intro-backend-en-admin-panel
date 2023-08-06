@@ -46,7 +46,7 @@ public class ChallengeService {
 	}
 
 	public ChallengeSubmission createSubmission(Team team, Challenge challenge, MultipartFile[] files) throws IOException, AlreadyApprovedException {
-		if (this.submissionRepository.existsByTeamAndChallengeAndStatus(team, challenge, SubmissionState.APPROVED)) throw new AlreadyApprovedException();
+		if (this.submissionRepository.existsByTeamAndChallengeAndStatusIn(team, challenge, List.of(SubmissionState.PENDING, SubmissionState.APPROVED))) throw new AlreadyApprovedException();
 		return this.submissionRepository.save(new ChallengeSubmission(team, challenge, files));
 	}
 

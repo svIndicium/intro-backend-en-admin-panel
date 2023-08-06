@@ -1,9 +1,6 @@
 package hu.indicium.speurtocht.controller;
 
-import hu.indicium.speurtocht.controller.dto.CreateTeamDTO;
-import hu.indicium.speurtocht.controller.dto.LeaderboardDTO;
-import hu.indicium.speurtocht.controller.dto.PointsDTO;
-import hu.indicium.speurtocht.controller.dto.ScoreDTO;
+import hu.indicium.speurtocht.controller.dto.*;
 import hu.indicium.speurtocht.security.AuthUtils;
 import hu.indicium.speurtocht.security.service.impl.AuthenticationServiceImpl;
 import hu.indicium.speurtocht.service.ChallengeService;
@@ -18,8 +15,10 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import hu.indicium.speurtocht.domain.Team;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 
 @Tag(name = "Team")
@@ -84,5 +83,20 @@ public class TeamController {
 	public void createNewTeam(@RequestBody CreateTeamDTO teamDTO) {
 		Team team = this.service.save(teamDTO.teamname());
 		authenticationService.createUser(team, teamDTO.password());
+	}
+
+	@Secured("ADMIN")
+	@Operation(
+			summary = "Get my team's score",
+			description = "Get amount of challenge points awarded and picture locations are approved."
+	)
+	@GetMapping("/{id}")
+	public TeamDTO getTeam(@PathVariable UUID id) {
+		Team team = this.service.getTeam(id);
+		ScoreDTO meta = new ScoreDTO(team.getName(), new PointsDTO(this.challengeService.getTeamPoints(team), this.pictureService.getTeamPoints(team)));
+		Collection<PictureSubmissionDTO> pictures = this.pictureService.getTeamsPictures(team).values();
+		Collection<ChallengeStatusDTO> challenges = this.challengeService.getTeamChallenges(team).values();
+
+		return new TeamDTO(meta, pictures, challenges);
 	}
 }

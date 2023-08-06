@@ -1,9 +1,6 @@
 package hu.indicium.speurtocht.controller;
 
-import hu.indicium.speurtocht.controller.dto.ChallengeStatusDTO;
-import hu.indicium.speurtocht.controller.dto.ChallengeSubmissionDTO;
-import hu.indicium.speurtocht.controller.dto.CreateChallengeDTO;
-import hu.indicium.speurtocht.controller.dto.SubmissionDTO;
+import hu.indicium.speurtocht.controller.dto.*;
 import hu.indicium.speurtocht.domain.Challenge;
 import hu.indicium.speurtocht.domain.ChallengeSubmission;
 import hu.indicium.speurtocht.domain.FileSubmission;
@@ -128,18 +125,20 @@ public class ChallengeController {
 			e.printStackTrace();
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
 		} catch (AlreadyApprovedException e) {
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
 		}
 	}
 
 	@Secured("ADMIN")
 	@Operation(summary = "Get list of Crazy 88 submissions awaiting approval")
 	@GetMapping("/pending")
-	public List<SubmissionDTO> getPending() {
+	public List<PendingChallengeSubmissionDTO> getPending() {
 		return this.challengeService
 				.getPending()
 				.stream()
-				.map((submission -> new SubmissionDTO(submission.getChallenge().getId(), submission.getTeam().getName(), submission.getTeam().getId())))
+				.map(
+						submission -> new PendingChallengeSubmissionDTO(submission.getChallenge().getId(), submission.getChallenge().getTitle(), submission.getTeam().getName(), submission.getTeam().getId())
+				)
 				.toList();
 	}
 

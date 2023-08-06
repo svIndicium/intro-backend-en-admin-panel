@@ -3,13 +3,15 @@ import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
 import {useRouter} from "vue-router";
 import {ref} from "vue";
 import SubmissionContent from "../../components/SubmissionContent.vue";
+import {ChallengeSubmission} from "../../models";
 
 const router = useRouter();
 
 const original = ref<HTMLDivElement>()
-const submission = ref<{ title: string, challenge: string, defaultPoints: number, submittedBy: string, files: string[] }>()
 
-fetchJsonWithAuth<{ title: string, challenge: string, defaultPoints: number, submittedBy: string, files: string[] }>(`/api/challenges/${router.currentRoute.value.params.id}/teams/${router.currentRoute.value.params.teamId}`)
+const submission = ref<ChallengeSubmission>()
+
+fetchJsonWithAuth<ChallengeSubmission>(`/api/challenges/${router.currentRoute.value.params.id}/teams/${router.currentRoute.value.params.teamId}`)
     .then(e => submission.value = e)
 
 async function deny() {
