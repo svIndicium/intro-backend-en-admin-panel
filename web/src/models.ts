@@ -13,8 +13,11 @@ export interface SubmissionEntry {
     teamId: string
 }
 
-export interface ChallengeSubmissionEntry extends SubmissionEntry {
-    title: string;
+export interface ChallengeSubmissionEntry {
+    id: string,
+    teamName: string,
+    teamId: string,
+    title: string
 }
 
 export interface ChallengeSubmission {

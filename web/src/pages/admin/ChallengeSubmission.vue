@@ -7,8 +7,6 @@ import {ChallengeSubmission} from "../../models";
 
 const router = useRouter();
 
-const original = ref<HTMLDivElement>()
-
 const submission = ref<ChallengeSubmission>()
 
 fetchJsonWithAuth<ChallengeSubmission>(`/api/challenges/${router.currentRoute.value.params.id}/teams/${router.currentRoute.value.params.teamId}`)
@@ -32,7 +30,7 @@ async function approve() {
 </script>
 
 <template>
-  <main>
+  <main v-if="submission">
     <h1>{{ submission.submittedBy }}: {{ submission.title }}</h1>
     <p>{{ submission.challenge }}</p>
     <div>
@@ -42,6 +40,9 @@ async function approve() {
     <div class="submission-grid">
       <SubmissionContent :url="`/api/challenges/submissions/${id}/file`" v-for="id in submission.files" />
     </div>
+  </main>
+  <main v-else>
+    <h1>Loading...</h1>
   </main>
 </template>
 

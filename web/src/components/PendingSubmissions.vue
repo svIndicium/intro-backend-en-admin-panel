@@ -8,16 +8,11 @@ const challengeSubmissions = ref<ChallengeSubmissionEntry[]>([])
 const inactive = ref<boolean>(false)
 
 const fetcherFunction = async () => {
-  const [newP, newC] = await Promise.all([
-    fetchJsonWithAuth<SubmissionEntry[]>("/api/pictures/pending"),
-    fetchJsonWithAuth<ChallengeSubmissionEntry[]>("/api/challenges/pending")
-  ])
+  pictureSubmissions.value = await fetchJsonWithAuth<SubmissionEntry[]>("/api/pictures/pending")
+  challengeSubmissions.value = await fetchJsonWithAuth<ChallengeSubmissionEntry[]>("/api/challenges/pending")
 
-  pictureSubmissions.value = newP
-  challengeSubmissions.value = newC
-  const total = newP.length + newC.length
-
-  document.title = total > 0 ? `Home (${newP.length + newC.length}) - Speurtocht 88` : `Home - Speurtocht 88`
+  const total = pictureSubmissions.value.length + challengeSubmissions.value.length
+  document.title = total > 0 ? `Home (${total}) - Speurtocht 88` : `Home - Speurtocht 88`
 
   if (inactive.value && total > 0) {
     new Audio('/notification.mp3').play()
@@ -44,7 +39,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div>
-    <table v-if="pictureSubmissions.length > 0">
+    <table v-if="pictureSubmissions.length > 0 || challengeSubmissions.length > 0">
       <thead>
       <tr>
         <th scope="col">type</th>
@@ -136,7 +131,7 @@ table {
 
   & > * > tr > td, & > * > tr > th {
     border-bottom: var(--brdr) solid 1px;
-    padding: 8px 0px;
+    padding: 8px 0;
     text-align: center;
     text-decoration: none;
     font-weight: bold;
