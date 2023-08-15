@@ -1,6 +1,9 @@
 package hu.indicium.speurtocht.controller;
 
-import hu.indicium.speurtocht.controller.dto.*;
+import hu.indicium.speurtocht.controller.dto.ChallengeStatusDTO;
+import hu.indicium.speurtocht.controller.dto.ChallengeSubmissionDTO;
+import hu.indicium.speurtocht.controller.dto.CreateChallengeDTO;
+import hu.indicium.speurtocht.controller.dto.PendingChallengeSubmissionDTO;
 import hu.indicium.speurtocht.domain.Challenge;
 import hu.indicium.speurtocht.domain.ChallengeSubmission;
 import hu.indicium.speurtocht.domain.FileSubmission;

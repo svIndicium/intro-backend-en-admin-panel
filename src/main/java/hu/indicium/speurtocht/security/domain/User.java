@@ -1,7 +1,10 @@
 package hu.indicium.speurtocht.security.domain;
 
 import hu.indicium.speurtocht.domain.Team;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

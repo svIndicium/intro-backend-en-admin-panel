@@ -1,12 +1,12 @@
 package hu.indicium.speurtocht.controller;
 
 import hu.indicium.speurtocht.controller.dto.*;
+import hu.indicium.speurtocht.domain.Team;
 import hu.indicium.speurtocht.security.AuthUtils;
 import hu.indicium.speurtocht.security.service.impl.AuthenticationServiceImpl;
 import hu.indicium.speurtocht.service.ChallengeService;
 import hu.indicium.speurtocht.service.PictureService;
 import hu.indicium.speurtocht.service.TeamService;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,7 +14,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-import hu.indicium.speurtocht.domain.Team;
 
 import java.util.Collection;
 import java.util.Comparator;

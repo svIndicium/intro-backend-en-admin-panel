@@ -1,8 +1,5 @@
 package hu.indicium.speurtocht.domain;
 
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

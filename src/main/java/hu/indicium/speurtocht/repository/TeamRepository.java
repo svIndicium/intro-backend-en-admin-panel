@@ -1,7 +1,7 @@
 package hu.indicium.speurtocht.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import hu.indicium.speurtocht.domain.Team;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;
 
