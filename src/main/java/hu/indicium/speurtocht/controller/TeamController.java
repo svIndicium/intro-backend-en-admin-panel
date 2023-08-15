@@ -6,6 +6,7 @@ import hu.indicium.speurtocht.security.service.impl.AuthenticationServiceImpl;
 import hu.indicium.speurtocht.service.ChallengeService;
 import hu.indicium.speurtocht.service.PictureService;
 import hu.indicium.speurtocht.service.TeamService;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

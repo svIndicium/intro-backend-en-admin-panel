@@ -125,7 +125,7 @@ public class ChallengeController {
 			e.printStackTrace();
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
 		} catch (AlreadyApprovedException e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+			throw new ResponseStatusException(HttpStatus.LOCKED);
 		}
 	}
 

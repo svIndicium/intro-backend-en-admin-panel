@@ -21,6 +21,10 @@ import java.util.function.Function;
 public class JwtServiceImpl implements JwtService {
 	@Value("${jwt.secret}")
 	private String jwtSigningKey;
+
+	private static final long duration = 1000 * 60 * 60 * 2;
+//	private static final long duration = 1000 * 60;
+
 	@Override
 	public String extractUserName(String token) {
 		return extractClaim(token, Claims::getSubject);
@@ -43,9 +47,13 @@ public class JwtServiceImpl implements JwtService {
 	}
 
 	private String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-		return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUsername())
+
+		return Jwts
+				.builder()
+				.setClaims(extraClaims)
+				.setSubject(userDetails.getUsername())
 				.setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 2)))
+				.setExpiration(new Date(System.currentTimeMillis() + duration))
 				.signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
 	}
 

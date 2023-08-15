@@ -1,6 +1,6 @@
 import Login from "./pages/admin/Login.vue";
 import AdminHome from "./pages/admin/AdminHome.vue"
-import {RouteRecordRaw} from "vue-router";
+import {createRouter, createWebHistory, RouteRecordRaw} from "vue-router";
 import CreateTeam from "./pages/admin/CreateTeam.vue";
 import CreateChallenges from "./pages/admin/CreateChallenges.vue";
 import CreatePictures from "./pages/admin/createPictures.vue";
@@ -24,4 +24,10 @@ const routes: RouteRecordRaw[] = [
     }
 ]
 
-export default routes
+const router = createRouter({
+    // 4. Provide the history implementation to use. We are using the hash history for simplicity here.
+    history: createWebHistory(),
+    routes, // short for `routes: routes`
+})
+
+export default router

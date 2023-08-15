@@ -58,7 +58,7 @@
 
         <div class="button-group">
           <DevOnly>
-            <button @click="loginAsAdmin">Quick dev login</button>
+            <button @click="loginAsAdmin" type="button">Quick dev login</button>
           </DevOnly>
           <button type="submit">Log in</button>
         </div>

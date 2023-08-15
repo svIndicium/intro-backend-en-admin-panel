@@ -113,7 +113,7 @@ public class PictureController {
 			e.printStackTrace();
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
 		} catch (AlreadyApprovedException e) {
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+			throw new ResponseStatusException(HttpStatus.LOCKED);
 		}
 	}
 
