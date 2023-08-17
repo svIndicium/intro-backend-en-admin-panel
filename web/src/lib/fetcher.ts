@@ -9,7 +9,7 @@ export function fetchJsonWithAuth<T>(url: string, data?: any): Promise<T> {
                 body: data
             })
             .then(async (e) => {
-                if (e.status === 403) await router.push({ path: '/' })
+                if (e.status === 401) await router.push({ path: '/' })
                 return e
             })
             .then<T>((e) => e.json())
@@ -19,7 +19,7 @@ export function fetchJsonWithAuth<T>(url: string, data?: any): Promise<T> {
                 headers: { "Authorization": "Bearer " + localStorage.getItem("accessToken") },
             })
             .then(async (e) => {
-                if (e.status === 403) await router.push({ path: '/' })
+                if (e.status === 401) await router.push({ path: '/' })
                 return e
             })
             .then<T>((e) => e.json())
@@ -32,7 +32,7 @@ export function fetchWithAuth(url: string): Promise<any> {
             headers: {"Authorization": "Bearer " + localStorage.getItem("accessToken") },
         })
         .then(async (e) => {
-            if (e.status === 403) await router.push({ path: '/' })
+            if (e.status === 401) await router.push({ path: '/' })
             return e
         })
 
@@ -49,7 +49,7 @@ export function sendForm(url: string, formdata: HTMLFormElement, method: string)
             body: JSON.stringify(data)
         })
         .then(async (e) => {
-            if (e.status === 403) await router.push({ path: '/' })
+            if (e.status === 401) await router.push({ path: '/' })
             return e
         })
 }
@@ -63,7 +63,7 @@ export function sendJson(url: string, data: any, method: string): Promise<any> {
             body: JSON.stringify(data)
         })
         .then(async (e) => {
-            if (e.status === 403) await router.push({ path: '/' })
+            if (e.status === 401) await router.push({ path: '/' })
             return e
         })
 }
