@@ -1,7 +1,6 @@
 package hu.indicium.speurtocht.security.controller;
 
 import hu.indicium.speurtocht.service.exceptions.AlreadyApprovedException;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,14 +20,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 		ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		problemDetail.setTitle("An unknown error has occurred");
-//		problemDetail.setType(URI.create("https://api.bookmarks.com/errors/not-found"));
-		return problemDetail;
-	}
-
-	@ExceptionHandler(ExpiredJwtException.class)
-	ProblemDetail handleJwtExpiredException(ExpiredJwtException e) {
-		ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "Session expired");
-		problemDetail.setTitle("Session expired");
 //		problemDetail.setType(URI.create("https://api.bookmarks.com/errors/not-found"));
 		return problemDetail;
 	}

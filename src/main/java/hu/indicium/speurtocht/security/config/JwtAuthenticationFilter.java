@@ -2,11 +2,13 @@ package hu.indicium.speurtocht.security.config;
 
 import hu.indicium.speurtocht.security.service.JwtService;
 import hu.indicium.speurtocht.security.service.UserService;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
@@ -23,6 +25,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final JwtService jwtService;
 	private final UserService userService;
+
 	@Override
 	protected void doFilterInternal(@NonNull HttpServletRequest request,
 									@NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
@@ -35,7 +38,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			return;
 		}
 		jwt = authHeader.substring(7);
-		userEmail = jwtService.extractUserName(jwt);
+		try {
+			userEmail = jwtService.extractUserName(jwt);
+		} catch (ExpiredJwtException e) {
+			response.setStatus(HttpStatus.UNAUTHORIZED.value());
+
+			return;
+
+		}
 		if (!userEmail.isEmpty()
 				&& SecurityContextHolder.getContext().getAuthentication() == null) {
 			UserDetails userDetails = userService.userDetailsService()
