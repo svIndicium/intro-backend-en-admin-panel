@@ -152,7 +152,7 @@ public class ChallengeStartUp implements ApplicationRunner {
 						this.challengeService.approve(team, challenge.getId());
 						log.info("approved submission for challenge: #" + challenge.getId() + " " + challenge.getTitle());
 					} else {
-						this.challengeService.deny(team, challenge.getId());
+						this.challengeService.deny(team, challenge.getId(), "Lorem ipsum");
 						log.info("denied submission for challenge: #" + challenge.getId() + " " + challenge.getTitle());
 					}
 				}

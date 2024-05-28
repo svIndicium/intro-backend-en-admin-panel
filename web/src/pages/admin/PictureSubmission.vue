@@ -7,6 +7,7 @@ import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
 
   const original = ref<HTMLDivElement>()
   const submission = ref<HTMLDivElement>()
+const deniedReason = ref<string>("")
 
 fetchWithAuth(`/api/pictures/${router.currentRoute.value.params.id}/file`)
     .then(r => r.blob())
@@ -89,7 +90,8 @@ fetchWithAuth(`/api/pictures/${router.currentRoute.value.params.id}/file`)
 async function deny() {
   await fetch(`/api/pictures/${router.currentRoute.value.params.id}/teams/${router.currentRoute.value.params.teamId}/deny`, {
     method: "PATCH",
-    headers: { "Authorization": "Bearer " + localStorage.getItem("accessToken") },
+    headers: { "Authorization": "Bearer " + localStorage.getItem("accessToken"), "Content-Type": "application/json" },
+    body: JSON.stringify({ deniedReason: deniedReason.value })
   })
   await router.push({path: '/admin/home'})
 }
@@ -117,22 +119,35 @@ async function approve() {
       <div>
         <div class="submission-top-bar">
           <p style="background-color: white;color: black;margin: 0">Submission</p>
-          <button type="button" @click="deny">deny</button>
-          <button type="button" @click="approve">approve</button>
         </div>
         <div ref="submission">content is loading</div>
+      </div>
+    </div>
+    <div class="action-group">
+      <div>
+        <button type="button" @click="approve" class="affirmative-action">approve</button>
+      </div>
+      <div>
+        <button type="button" @click="deny" :disabled="deniedReason === ''">deny</button>
+        <label for="reason">Reason for denial:</label>
+        <br>
+        <textarea style="width: 100%; resize: none;  height: 5rem" v-model="deniedReason" id="reason"/>
+
       </div>
     </div>
   </main>
 </template>
 
 <style scoped lang="scss">
+main {
+  padding: 1em;
+}
 .submission-grid {
   display: grid;
   grid-template-rows: 1fr;
   grid-template-columns: 1fr 1fr;
   gap: 1em;
-  padding: 1em;
+  //padding: 1em;
 
   &> div {
     width: 100%;
@@ -166,5 +181,24 @@ async function approve() {
   > button:hover {
     background-color: var(--bg-p);
   }
+}
+
+.action-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1em;
+
+  div > button {
+    width: 100%;
+    border-radius: 1em;
+    font-weight: bolder;
+    padding: .5rem;
+    font-size: 1.5rem;
+    border: none;
+  }
+}
+
+.affirmative-action {
+  background-color: #73C671;
 }
 </style>

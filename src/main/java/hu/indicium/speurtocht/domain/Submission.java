@@ -27,6 +27,8 @@ public abstract class Submission {
 
 	private SubmissionState status;
 
+	private String deniedReason;
+
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private FileSubmission fileSubmission;
 
@@ -40,8 +42,8 @@ public abstract class Submission {
 		this.status = SubmissionState.APPROVED;
 	}
 
-	// todo string met reden waarom
-	public void deny() {
+	public void deny(String deniedReason) {
+		this.deniedReason = deniedReason;
 		this.status = SubmissionState.DENIED;
 	}
 }

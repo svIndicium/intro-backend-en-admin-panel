@@ -10,5 +10,6 @@ public record ChallengeStatusDTO(
 		String challenge,
 		int points,
 		SubmissionState state,
+		String deniedReason,
 		Instant submittedAt) {
 }

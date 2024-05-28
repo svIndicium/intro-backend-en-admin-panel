@@ -25,6 +25,7 @@ public class PictureSubmission {
 	private Team team;
 
 	private SubmissionState status;
+	private String deniedReason;
 
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private FileSubmission fileSubmission;
@@ -40,8 +41,8 @@ public class PictureSubmission {
 		this.status = SubmissionState.APPROVED;
 	}
 
-	// todo string met reden waarom
-	public void deny() {
+	public void deny(String deniedReason) {
+		this.deniedReason = deniedReason;
 		this.status = SubmissionState.DENIED;
 	}
 }

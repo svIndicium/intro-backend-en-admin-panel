@@ -71,6 +71,7 @@ public class PictureService {
 								Picture::getId,
 								(picture) -> new PictureSubmissionDTO(
 										picture.getId(),
+										null,
 										null
 								)
 						)
@@ -84,7 +85,8 @@ public class PictureService {
 								(e) -> e.getPicture().getId(),
 								(submission) -> new PictureSubmissionDTO(
 										submission.getPicture().getId(),
-										submission.getStatus()
+										submission.getStatus(),
+										submission.getDeniedReason()
 								)
 						)
 				);
@@ -116,9 +118,9 @@ public class PictureService {
 		this.submissionRepository.save(submission);
 	}
 
-	public void deny(Team team, Long id) {
+	public void deny(Team team, Long id, String reason) {
 		PictureSubmission submission = this.submissionRepository.getReferenceById(new PictureSubmissionId(team, this.getPicture(id)));
-		submission.deny();
+		submission.deny(reason);
 		this.submissionRepository.save(submission);
 	}
 }

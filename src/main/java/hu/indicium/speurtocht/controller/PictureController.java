@@ -2,6 +2,7 @@ package hu.indicium.speurtocht.controller;
 
 import hu.indicium.speurtocht.controller.dto.PictureSubmissionDTO;
 import hu.indicium.speurtocht.controller.dto.SubmissionDTO;
+import hu.indicium.speurtocht.controller.dto.SubmissionDeniedDTO;
 import hu.indicium.speurtocht.domain.Coordinate;
 import hu.indicium.speurtocht.domain.FileSubmission;
 import hu.indicium.speurtocht.domain.PictureFile;
@@ -137,8 +138,8 @@ public class PictureController {
 	@Secured("ADMIN")
 	@Operation(summary = "Deny a picture submission")
 	@PatchMapping("/{pictureId}/teams/{teamId}/deny")
-	public void deny(@PathVariable Long pictureId, @PathVariable UUID teamId) {
-		this.pictureService.deny(this.teamService.getTeam(teamId), pictureId);
+	public void deny(@PathVariable Long pictureId, @PathVariable UUID teamId, @RequestBody SubmissionDeniedDTO dto) {
+		this.pictureService.deny(this.teamService.getTeam(teamId), pictureId, dto.deniedReason());
 	}
 
 	@Secured("ADMIN")

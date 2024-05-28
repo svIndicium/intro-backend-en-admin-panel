@@ -68,6 +68,7 @@ public class ChallengeService {
 										challenge.getChallenge(),
 										challenge.getPoints(),
 										null,
+										null,
 										null
 								)
 						)
@@ -85,6 +86,7 @@ public class ChallengeService {
 										submission.getChallenge().getChallenge(),
 										submission.getChallenge().getPoints(),
 										submission.getStatus(),
+										submission.getDeniedReason(),
 										submission.getSubmittedAt()
 								)
 						)
@@ -105,9 +107,9 @@ public class ChallengeService {
 		this.submissionRepository.save(submission);
 	}
 
-	public void deny(Team team, Long id) {
+	public void deny(Team team, Long id, String reason) {
 		ChallengeSubmission submission = this.submissionRepository.getReferenceById(new ChallengeSubmissionId(team, this.getChallenge(id)));
-		submission.deny();
+		submission.deny(reason);
 		this.submissionRepository.save(submission);
 	}
 

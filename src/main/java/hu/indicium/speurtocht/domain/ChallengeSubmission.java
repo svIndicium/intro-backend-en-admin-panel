@@ -29,6 +29,7 @@ public class ChallengeSubmission {
 	private Challenge challenge;
 
 	private SubmissionState status;
+	private String deniedReason;
 
 	private Instant submittedAt;
 
@@ -54,8 +55,8 @@ public class ChallengeSubmission {
 		this.status = SubmissionState.APPROVED;
 	}
 
-	// todo string met reden waarom
-	public void deny() {
+	public void deny(String deniedReason) {
+		this.deniedReason = deniedReason;
 		this.status = SubmissionState.DENIED;
 	}
 }

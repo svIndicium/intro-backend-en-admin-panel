@@ -1,9 +1,6 @@
 package hu.indicium.speurtocht.controller;
 
-import hu.indicium.speurtocht.controller.dto.ChallengeStatusDTO;
-import hu.indicium.speurtocht.controller.dto.ChallengeSubmissionDTO;
-import hu.indicium.speurtocht.controller.dto.CreateChallengeDTO;
-import hu.indicium.speurtocht.controller.dto.PendingChallengeSubmissionDTO;
+import hu.indicium.speurtocht.controller.dto.*;
 import hu.indicium.speurtocht.domain.Challenge;
 import hu.indicium.speurtocht.domain.ChallengeSubmission;
 import hu.indicium.speurtocht.domain.FileSubmission;
@@ -170,8 +167,8 @@ public class ChallengeController {
 	@Secured("ADMIN")
 	@Operation(summary = "Deny a Crazy 88 submission")
 	@PatchMapping("/{challengeId}/teams/{teamId}/deny")
-	public void deny(@PathVariable Long challengeId, @PathVariable UUID teamId) {
-		this.challengeService.deny(this.teamService.getTeam(teamId), challengeId);
+	public void deny(@PathVariable Long challengeId, @PathVariable UUID teamId, @RequestBody SubmissionDeniedDTO dto) {
+		this.challengeService.deny(this.teamService.getTeam(teamId), challengeId, dto.deniedReason());
 	}
 
 	@Secured("ADMIN")

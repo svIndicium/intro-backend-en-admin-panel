@@ -61,7 +61,7 @@ public class PictureStartUp implements ApplicationRunner {
 						this.pictureService.approve(team, picture.getId());
 						log.info("approved picture submission for: " + i);
 					} else {
-						this.pictureService.deny(team, picture.getId());
+						this.pictureService.deny(team, picture.getId(), "Lorem ipsum dolor sit amet");
 						log.info("denied picture submission for: " + i);
 					}
 				}
