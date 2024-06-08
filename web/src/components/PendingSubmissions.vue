@@ -101,7 +101,7 @@ onBeforeUnmount(() => {
 
   > svg .rotate {
     transform-box: fill-box;
-    transform-origin: bottom;
+    //transform-origin: bottom;
     animation-duration: 10s;
     animation-name: rotate-element;
     animation-iteration-count: infinite;
@@ -111,6 +111,22 @@ onBeforeUnmount(() => {
   > img {
     height: 100%
   }
+}
+
+path.ring-green {
+  //transform-origin: 75% 25%;
+  transform-origin: 38px 53px;
+  //animation-delay: 0ms;
+}
+
+path.ring-blue-green {
+  transform-origin: 50px 72px;
+  //animation-delay: 100ms;
+}
+
+path.ring-blue {
+  transform-origin: 63px 90px;
+  //animation-delay: 200ms;
 }
 
 @keyframes rotate-element {

@@ -38,7 +38,7 @@ export function fetchWithAuth(url: string): Promise<any> {
 
 }
 
-export function sendForm(url: string, formdata: HTMLFormElement, method: string): Promise<any> {
+export function sendForm(url: string, formdata: HTMLFormElement, method: string): Promise<Response> {
     const entries = new FormData(formdata).entries();
     const data = Object.fromEntries(entries);
     return fetch(

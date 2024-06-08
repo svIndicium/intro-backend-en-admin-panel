@@ -32,8 +32,8 @@ public class User implements UserDetails {
 
 	private UserRole role;
 
-	public static User createParticipant(Team team, String password) {
-		return new User(team.getName(), password, team, UserRole.PARTICIPANT);
+	public static User createParticipant(Team team, String joinCode, String password) {
+		return new User(joinCode, password, team, UserRole.PARTICIPANT);
 	}
 
 	public static User createAdmin(String username, String password) {

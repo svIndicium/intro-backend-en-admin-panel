@@ -77,12 +77,13 @@ public class TeamController {
 
 	@Secured("ADMIN")
 	@Operation(
-			summary = "Create a new team"
+			summary = "Create a new team",
+			description = "Creates a new team, returns their unique join code"
 	)
 	@PostMapping
-	public void createNewTeam(@RequestBody CreateTeamDTO teamDTO) {
+	public String createNewTeam(@RequestBody CreateTeamDTO teamDTO) {
 		Team team = this.service.save(teamDTO.teamname());
-		authenticationService.createUser(team, teamDTO.password());
+		return authenticationService.createUser(team);
 	}
 
 	@Secured("ADMIN")

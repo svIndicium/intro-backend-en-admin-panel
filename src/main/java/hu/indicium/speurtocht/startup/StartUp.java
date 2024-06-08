@@ -27,7 +27,8 @@ public class StartUp implements ApplicationRunner {
 		if (this.teamService.getAll().isEmpty()) {
 			for (int i = 1; i < 11; i++) {
 				Team team = this.teamService.save("team-" + i);
-				authenticationService.createUser(team, "password");
+				String joinCode = authenticationService.createUser(team);
+				log.info("created team:\t{} with join code:\t{}", team.getName(), joinCode);
 			}
 		}
 

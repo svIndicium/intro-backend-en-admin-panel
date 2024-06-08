@@ -21,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -91,24 +92,34 @@ public class ZipStartUp implements ApplicationRunner {
 	}
 
 	public void readChallenges(String zipDir) throws IOException {
-		Files.lines(Paths.get(unzippedLocation + File.separator + zipDir + File.separator + "challenges.tsv"))
+		try (Stream<String> lines = Files.lines(Paths.get(unzippedLocation + File.separator + zipDir + File.separator + "challenges.tsv"))) {
+			lines
 				.skip(1)
 				.forEach(line -> {
 					String[] split = line.split("	");
 					this.challengeService.save(split[1], split[2], Integer.parseInt(split[3]));
-					log.info("Created challenge:\t" + split[0] + "\t" + split[1]);
+                    log.info("Created challenge:\t{}\t{}", split[0], split[1]);
 				});
+		} catch (IOException e) {
+			log.error("Failed to read challenges", e);
+		}
+
+
 	}
 
-	public void readTeams(String zipDir) throws IOException {
-		Files.lines(Paths.get(unzippedLocation + File.separator + zipDir + File.separator + "teams.tsv"))
+	public void readTeams(String zipDir) {
+		try (Stream<String> lines = Files.lines(Paths.get(unzippedLocation + File.separator + zipDir + File.separator + "teams.tsv"))) {
+			lines
 				.skip(1)
 				.forEach(line -> {
 					String[] split = line.split("	");
 					Team team = this.teamService.save(split[0]);
-					this.authenticationService.createUser(team, split[1]);
-					log.info("Created team:\t" + split[0]);
-				});
+					String joinCode = this.authenticationService.createUser(team);
+					log.info("Created team:\t{}:\t{}", split[0], joinCode);
+			});
+		} catch (IOException e) {
+			log.error("Failed to read teams file", e);
+		}
 	}
 
 	public void unzip(String zipFilePath, String zipDir) throws IOException {

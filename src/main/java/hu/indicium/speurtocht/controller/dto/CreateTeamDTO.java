@@ -1,4 +1,4 @@
 package hu.indicium.speurtocht.controller.dto;
 
-public record CreateTeamDTO(String teamname, String password) {
+public record CreateTeamDTO(String teamname) {
 }

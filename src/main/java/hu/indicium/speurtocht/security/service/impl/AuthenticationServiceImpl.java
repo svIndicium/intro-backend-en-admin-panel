@@ -12,6 +12,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -22,21 +24,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	private final AuthenticationManager authenticationManager;
 
 	@Override
-	public AuthenticationResponse createUser(Team team, String password) {
-		var user = User.createParticipant(team, passwordEncoder.encode(password));
+	public String createUser(Team team) {
+		SecureRandom secureRandom = new SecureRandom();
+		int intPassword = 100000 + secureRandom.nextInt(900000);
+		String joinCode = String.valueOf(intPassword);
+		var user = User.createParticipant(team, joinCode, passwordEncoder.encode(joinCode));
 		userRepository.save(user);
-		var jwt = jwtService.generateToken(user);
 
-		return new AuthenticationResponse(jwt, user.getRole());
+		return joinCode;
+
 	}
 
 	@Override
-	public AuthenticationResponse createAdmin(String username, String password) {
+	public void createAdmin(String username, String password) {
 		var user = User.createAdmin(username, passwordEncoder.encode(password));
 		userRepository.save(user);
 		var jwt = jwtService.generateToken(user);
-
-		return new AuthenticationResponse(jwt, user.getRole());
 	}
 
 	@Override
