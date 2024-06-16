@@ -13,7 +13,7 @@ public class AuthUtils {
 	private final TeamRepository teamRepository;
 
 	public Team getTeam() {
-		return this.teamRepository.findByName(SecurityContextHolder.getContext().getAuthentication().getName());
+		return this.teamRepository.findByJoinCode(SecurityContextHolder.getContext().getAuthentication().getName());
 	}
 
 }

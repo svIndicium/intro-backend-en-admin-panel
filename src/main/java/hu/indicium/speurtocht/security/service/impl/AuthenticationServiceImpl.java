@@ -25,13 +25,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Override
 	public String createUser(Team team) {
-		SecureRandom secureRandom = new SecureRandom();
-		int intPassword = 100000 + secureRandom.nextInt(900000);
-		String joinCode = String.valueOf(intPassword);
-		var user = User.createParticipant(team, joinCode, passwordEncoder.encode(joinCode));
+		var user = User.createParticipant(team, team.getJoinCode(), passwordEncoder.encode(team.getJoinCode()));
 		userRepository.save(user);
 
-		return joinCode;
+		return team.getJoinCode();
 
 	}
 

@@ -1,5 +1,6 @@
 package hu.indicium.speurtocht.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,10 +20,14 @@ public class Team {
 	@GeneratedValue
 	private UUID id;
 
-	@Column(unique = true)
 	private String name;
 
-	public Team(String name) {
+	@JsonIgnore
+	@Column(unique = true)
+	private String joinCode;
+
+	public Team(String name, String joinCode) {
 		this.name = name;
+		this.joinCode = joinCode;
 	}
 }

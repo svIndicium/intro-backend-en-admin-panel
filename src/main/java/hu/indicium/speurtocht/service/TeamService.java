@@ -5,6 +5,7 @@ import hu.indicium.speurtocht.repository.TeamRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,7 +16,10 @@ public class TeamService {
 	private TeamRepository repository;
 
 	public Team save(String name) {
-		return repository.save(new Team(name));
+		SecureRandom secureRandom = new SecureRandom();
+		int intPassword = 100000 + secureRandom.nextInt(900000);
+		String joinCode = String.valueOf(intPassword);
+		return repository.save(new Team(name, joinCode));
 	}
 
 	public Team getTeam(UUID id) {
