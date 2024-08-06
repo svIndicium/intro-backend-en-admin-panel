@@ -28,58 +28,94 @@ import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
 
 <template>
   <main>
-    <h1>{{team.meta.teamName}}</h1>
-    <p>Crazy 88 score: {{team.meta.points.challengePoints}}</p>
-    <p>Pictures approved: {{team.meta.points.picturesApproved}}</p>
-    <section aria-label="picture locations" class="pictures">
-      <ul class="picture-grid" aria-label="list of pictures">
-        <li v-for="picture in team.pictures">
-          <template v-if="picture.state === 'APPROVED'">
-<!--            <router-link :to="`/admin/picture/${picture.id}`" class="image-container" >-->
-              <img :src="picture.content"/>
-<!--            </router-link>-->
-          </template>
-          <template v-else>
-            <div class="image-container" />
-          </template>
+    <header class="top-section">
+      <router-link to="/admin/home">&lt;</router-link>
+      <h1>{{team.meta.teamName}}</h1>
+      <h2 style="margin-left: auto">join code: <u>{{team.joinCode}}</u></h2>
+    </header>
+    <div class="submissions-grid">
+      <section aria-label="picture locations" >
+        <h1>Bingo {{team.meta.points.picturesApproved}}/25</h1>
+        <div class="pictures">
+          <ul class="picture-grid" aria-label="list of pictures">
+            <li v-for="picture in team.pictures">
+              <template v-if="picture.state === 'APPROVED'">
+                <!--            <router-link :to="`/admin/picture/${picture.id}`" class="image-container" >-->
+                <img :src="picture.content"/>
+                <!--            </router-link>-->
+              </template>
+              <template v-else>
+                <div class="image-container" />
+              </template>
 
-        </li>
-      </ul>
-    </section>
-    <section aria-label="challenges">
-      <table id="challenge-table">
-        <thead>
-        <tr>
-          <th scope="col">Nr.</th>
-          <th scope="col">Challenge</th>
-          <th scope="col">Score</th>
-        </tr>
-        </thead>
-        <tbody>
-        <template v-for="(challenge, index) in team.challenges">
+            </li>
+          </ul>
+        </div>
+
+      </section>
+      <section aria-label="challenges">
+        <h1>Crazy 88: {{team.meta.points.challengePoints}}</h1>
+        <table id="challenge-table">
+          <thead>
           <tr>
-            <td>#{{index+1}}</td>
-            <th scope="row"><router-link :to="`/admin/submissions/challenge/${challenge.id}/team/${router.currentRoute.value.params.id}`">{{challenge.title}}</router-link></th>
-            <td>{{challenge.points}}</td>
+            <th scope="col">Nr.</th>
+            <th scope="col">Challenge</th>
+            <th scope="col">Score</th>
           </tr>
-          <tr>
-            <td colspan="3">{{challenge.challenge}}</td>
-          </tr>
-        </template>
-        </tbody>
-      </table>
-    </section>
+          </thead>
+          <tbody>
+          <template v-for="(challenge, index) in team.challenges">
+            <tr>
+              <td>#{{index+1}}</td>
+              <th scope="row"><router-link :to="`/admin/submissions/challenge/${challenge.id}/team/${router.currentRoute.value.params.id}`">{{challenge.title}}</router-link></th>
+              <td>{{challenge.points}}</td>
+            </tr>
+            <tr>
+              <td colspan="3">{{challenge.challenge}}</td>
+            </tr>
+          </template>
+          </tbody>
+        </table>
+      </section>
+    </div>
+
   </main>
   </template>
 
 <style scoped lang="scss">
+main {
+  margin: 1rem;
+}
+
+.top-section {
+  display: flex;
+  align-items: baseline;
+  background-color: #73C671;
+  border-radius: 1rem;
+  padding: 1rem;
+
+  a {
+    font-size: 32px;
+    color: black;
+    text-decoration: none;
+    font-weight: 700;
+    padding-right: 1rem;
+  }
+
+  * {
+    margin: 0;
+  }
+}
+
+
 ul.picture-grid {
   list-style: none;
   display: grid;
   grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-  height: 95vh;
-  width: 95vw;
+  //height: 95vh;
+  width: 100%;
+  aspect-ratio: 1;
   border: black solid 1px;
   border-radius: 1rem;
   overflow: hidden;
@@ -98,11 +134,21 @@ ul.picture-grid {
   }
 }
 
+.submissions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  //padding: 0 1rem;
+  //width: 95vw;
+  //grid-template-rows: 1fr 1fr;
+}
+
 .pictures {
+  width: inherit;
   //height: 80vw;
   //width: 80vw;
   display: grid;
-  place-items: center;
+  //place-items: center;
 
   //border: black solid 1px;
   //border-radius: 1rem;
@@ -140,7 +186,7 @@ th > a {
 }
 
 #challenge-table {
-  margin-top: 4rem;
+  //margin-top: 4rem;
   background-color: var(--bg-s);
   thead > tr > th:nth-child(2) {
     text-align: left;

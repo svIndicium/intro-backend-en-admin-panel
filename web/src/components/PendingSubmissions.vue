@@ -5,7 +5,7 @@ import {onBeforeUnmount, ref} from "vue";
 
 const pictureSubmissions = ref<SubmissionEntry[]>([])
 const challengeSubmissions = ref<ChallengeSubmissionEntry[]>([])
-const inactive = ref<boolean>(false)
+
 
 const fetcherFunction = async () => {
   pictureSubmissions.value = await fetchJsonWithAuth<SubmissionEntry[]>("/api/pictures/pending")
@@ -13,27 +13,13 @@ const fetcherFunction = async () => {
 
   const total = pictureSubmissions.value.length + challengeSubmissions.value.length
   document.title = total > 0 ? `Home (${total}) - Speurtocht 88` : `Home - Speurtocht 88`
-
-  if (inactive.value && total > 0) {
-    new Audio('/notification.mp3').play()
-  }
 }
 
 fetcherFunction()
 const refresher = setInterval(fetcherFunction, 1000 * 60)
 
-let time = setTimeout(() => inactive.value = true, 1000 * 60 * 5)
-const clearInactivity = () => {
-  inactive.value = false;
-  clearTimeout(time);
-  time = setTimeout(() => inactive.value = true, 1000 * 60 * 5)
-}
-
-window.onmousemove = clearInactivity;
-
 onBeforeUnmount(() => {
   clearInterval(refresher)
-  clearTimeout(time)
 })
 </script>
 

@@ -6,6 +6,7 @@ import hu.indicium.speurtocht.controller.dto.SubmissionDeniedDTO;
 import hu.indicium.speurtocht.domain.Coordinate;
 import hu.indicium.speurtocht.domain.FileSubmission;
 import hu.indicium.speurtocht.domain.PictureFile;
+import hu.indicium.speurtocht.domain.Team;
 import hu.indicium.speurtocht.security.AuthUtils;
 import hu.indicium.speurtocht.service.PictureService;
 import hu.indicium.speurtocht.service.TeamService;
@@ -67,6 +68,21 @@ public class PictureController {
 		HttpHeaders responseHeaders = new HttpHeaders();
 		responseHeaders.setCacheControl(CacheControl.maxAge(Duration.of(2, ChronoUnit.HOURS)));
 		PictureFile file = this.pictureService.getFile(pictureId);
+		responseHeaders.set("Content-Type", file.getType());
+		return ResponseEntity
+				.ok()
+				.headers(responseHeaders)
+				.body(file.getContent());
+	}
+
+	@Operation(summary = "Get image file of team's submission")
+	@GetMapping("/{pictureId}/submission")
+	@Transactional
+	public ResponseEntity<byte[]> getSubmissionContent(@PathVariable Long pictureId) {
+		Team team = this.authUtils.getTeam();
+		HttpHeaders responseHeaders = new HttpHeaders();
+		responseHeaders.setCacheControl(CacheControl.maxAge(Duration.of(2, ChronoUnit.HOURS)));
+		FileSubmission file = this.pictureService.getSubmissionFile(team, pictureId);
 		responseHeaders.set("Content-Type", file.getType());
 		return ResponseEntity
 				.ok()

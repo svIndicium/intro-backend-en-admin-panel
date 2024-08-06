@@ -95,9 +95,10 @@ public class TeamController {
 	public TeamDTO getTeam(@PathVariable UUID id) {
 		Team team = this.service.getTeam(id);
 		ScoreDTO meta = new ScoreDTO(team.getName(), new PointsDTO(this.challengeService.getTeamPoints(team), this.pictureService.getTeamPoints(team)));
+		String joinCode = team.getJoinCode();
 		Collection<PictureSubmissionDTO> pictures = this.pictureService.getTeamsPictures(team).values();
 		Collection<ChallengeStatusDTO> challenges = this.challengeService.getTeamChallenges(team).values();
 
-		return new TeamDTO(meta, pictures, challenges);
+		return new TeamDTO(meta, joinCode, pictures, challenges);
 	}
 }

@@ -49,6 +49,7 @@ export interface TeamMeta {
             picturesApproved: number
         }
     };
+    joinCode: string;
     challenges: Challenge[];
     pictures: Picture[];
 }
