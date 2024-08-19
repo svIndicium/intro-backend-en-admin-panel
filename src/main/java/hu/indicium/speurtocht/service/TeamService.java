@@ -19,6 +19,9 @@ public class TeamService {
 		SecureRandom secureRandom = new SecureRandom();
 		int intPassword = 100000 + secureRandom.nextInt(900000);
 		String joinCode = String.valueOf(intPassword);
+		while (this.repository.existsByJoinCode(joinCode)) {
+			joinCode += String.valueOf(secureRandom.nextInt(0, 10));
+		}
 		return repository.save(new Team(name, joinCode));
 	}
 
