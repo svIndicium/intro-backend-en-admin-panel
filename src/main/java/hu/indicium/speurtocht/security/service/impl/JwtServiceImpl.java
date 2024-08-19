@@ -21,7 +21,7 @@ public class JwtServiceImpl implements JwtService {
 	@Value("${jwt.secret}")
 	private String jwtSigningKey;
 
-	private static final long duration = 1000 * 60 * 60 * 2;
+	private static final long duration = 1000 * 60 * 60 * 24;
 //	private static final long duration = 1000 * 60;
 
 	@Override
