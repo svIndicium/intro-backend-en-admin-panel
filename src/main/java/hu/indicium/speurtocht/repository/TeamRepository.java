@@ -10,4 +10,6 @@ public interface TeamRepository extends JpaRepository<Team, UUID> {
 
 	Team findByJoinCode(String joinCode);
 
+	boolean existsByJoinCode(String joinCode);
+
 }
