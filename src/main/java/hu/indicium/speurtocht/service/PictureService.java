@@ -26,7 +26,7 @@ public class PictureService {
 	private PictureSubmissionRepository submissionRepository;
 	private FileSubmissionRepository fileSubmissionRepository;
 
-	private static final int maxImagePixelsOnOneAxis = 256;
+	private static final int maxImagePixelsOnOneAxis = 96;
 
 
 	public Picture createPictures(Coordinate coordinate, MultipartFile file) throws IOException {
