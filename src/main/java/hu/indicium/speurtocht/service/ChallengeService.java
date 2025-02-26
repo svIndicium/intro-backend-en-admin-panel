@@ -14,10 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -108,7 +105,7 @@ public class ChallengeService {
 				.orElseThrow(() -> new EntityNotFoundException("Attempt not found"));
 
 		// Check if submission has already been created to avoid redundant processing
-		if (this.submissionRepository.existsById(new ChallengeSubmissionId(team, challenge))) {
+		if (this.submissionRepository.existsByTeamAndChallengeAndStatusIn(team, challenge, List.of(SubmissionState.PENDING, SubmissionState.APPROVED))) {
 			return; // Another thread has already processed this submission
 		}
 
