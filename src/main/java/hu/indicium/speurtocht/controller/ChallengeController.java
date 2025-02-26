@@ -1,10 +1,7 @@
 package hu.indicium.speurtocht.controller;
 
 import hu.indicium.speurtocht.controller.dto.*;
-import hu.indicium.speurtocht.domain.Challenge;
-import hu.indicium.speurtocht.domain.ChallengeSubmission;
-import hu.indicium.speurtocht.domain.FileSubmission;
-import hu.indicium.speurtocht.domain.SubmissionState;
+import hu.indicium.speurtocht.domain.*;
 import hu.indicium.speurtocht.security.AuthUtils;
 import hu.indicium.speurtocht.service.ChallengeService;
 import hu.indicium.speurtocht.service.TeamService;
@@ -29,6 +26,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Tag(
 		name = "Crazy 88",
@@ -111,7 +110,7 @@ public class ChallengeController {
 	@ApiResponses({
 			@ApiResponse(responseCode = "200"),
 			@ApiResponse(responseCode = "400", description = "Failed to parse image."),
-			@ApiResponse(responseCode = "403", description = "There's already a image submitted for this challenge.")
+			@ApiResponse(responseCode = "423", description = "There's already a image submitted for this challenge.")
 	})
 	@PostMapping(value = "/{challengeId}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
 	public void createSubmission(@PathVariable Long challengeId, @RequestParam("files") MultipartFile[] files) {
@@ -121,6 +120,82 @@ public class ChallengeController {
 					this.challengeService.getChallenge(challengeId),
 					files
 			);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+		} catch (AlreadyApprovedException e) {
+			throw new ResponseStatusException(HttpStatus.LOCKED);
+		}
+	}
+
+	@Secured("PARTICIPANT")
+	@Operation(summary = "Create submission for a challenge")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200"),
+			@ApiResponse(responseCode = "423", description = "There's already a image submitted for this challenge.")
+	})
+	@PostMapping(value = "/{challengeId}/attempt")
+	public Long createSubmissionAttempt(
+			@PathVariable Long challengeId,
+			@RequestBody Map<String, Integer> files
+	) {
+		try {
+			SubmissionAttempt attempt = this.challengeService.createAttempt(
+					this.authUtils.getTeam(),
+					this.challengeService.getChallenge(challengeId),
+					files
+			);
+			return attempt.getId();
+		} catch (AlreadyApprovedException e) {
+			throw new ResponseStatusException(HttpStatus.LOCKED);
+		}
+//		try {
+//			this.challengeService.createSubmission(
+//					this.authUtils.getTeam(),
+//					this.challengeService.getChallenge(challengeId),
+//					files
+//			);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+//		} catch (AlreadyApprovedException e) {
+//			throw new ResponseStatusException(HttpStatus.LOCKED);
+//		}
+	}
+
+	@Secured("PARTICIPANT")
+	@Operation(summary = "Create submission for a challenge")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200"),
+			@ApiResponse(responseCode = "400", description = "Failed to parse image."),
+			@ApiResponse(responseCode = "423", description = "There's already a image submitted for this challenge.")
+	})
+	@PostMapping(value = "/{challengeId}/attempt/{attemptId}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+	public void createSubmissionChunked(
+			@PathVariable Long challengeId,
+			@PathVariable Long attemptId,
+			@RequestParam("chunk") MultipartFile chunk,
+			@RequestParam("fileName") String fileName,
+			@RequestParam("fileType") String fileType,
+			@RequestParam("chunkIndex") int chunkIndex
+//			@RequestParam("totalChunks") int totalChunks
+	) {
+		try {
+			Team team = this.authUtils.getTeam();
+			Challenge challenge = this.challengeService.getChallenge(challengeId);
+			this.challengeService.addChunk(
+					team,
+					challenge,
+					attemptId,
+                    (long) chunkIndex,
+					fileName,
+					fileType,
+					chunk
+
+			);
+
+			this.challengeService.processSubmission(team, challenge, attemptId);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
@@ -147,14 +222,16 @@ public class ChallengeController {
 	@GetMapping("/{challengeId}/teams/{teamId}")
 	@Transactional
 	public ChallengeSubmissionDTO getSubmission(@PathVariable Long challengeId, @PathVariable UUID teamId) {
-		ChallengeSubmission submission = this.challengeService.getSubmission(this.teamService.getTeam(teamId), challengeId);
-		return new ChallengeSubmissionDTO(
-				submission.getChallenge().getTitle(),
-				submission.getChallenge().getChallenge(),
-				submission.getChallenge().getPoints(),
-				submission.getTeam().getName(),
-				submission.getFileSubmission().stream().map(FileSubmission::getId).toList()
-		);
+		return this.challengeService.getSubmissionOptimized(teamId, challengeId);
+//		return new ChallengeSubmissionDTO(
+//				submission.getChallenge().getTitle(),
+//				submission.getChallenge().getChallenge(),
+//				submission.getChallenge().getPoints(),
+//				submission.getTeam().getName(),
+//				submission.getFileSubmission().stream()
+//						.map(FileSubmission::getId)
+//						.toList()
+//		);
 	}
 
 	@Secured("ADMIN")

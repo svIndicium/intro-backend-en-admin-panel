@@ -1,9 +1,6 @@
 package hu.indicium.speurtocht.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,11 +23,21 @@ public class FileSubmission {
 
 	private String type;
 
-	@Lob
+	@Lob @Basic(fetch = FetchType.LAZY)
 	private byte[] content;
 
 	public FileSubmission(MultipartFile file) throws IOException {
 		this.type = file.getContentType();
 		this.content = file.getBytes();
+	}
+
+	public FileSubmission(String type, MultipartFile file) throws IOException {
+		this.type = type;
+		this.content = file.getBytes();
+	}
+
+	public FileSubmission(String type, byte[] content) {
+		this.type = type;
+		this.content = content;
 	}
 }

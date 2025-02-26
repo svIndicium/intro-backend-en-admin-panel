@@ -51,6 +51,14 @@ public class ChallengeSubmission {
 		}).toList();
 	}
 
+	public ChallengeSubmission(Team team, Challenge challenge, List<FileSubmission> files) throws IOException {
+		this.team = team;
+		this.challenge = challenge;
+		this.status = SubmissionState.PENDING;
+		this.submittedAt = Instant.now();
+		this.fileSubmission = files;
+	}
+
 	public void approve() {
 		this.status = SubmissionState.APPROVED;
 	}
