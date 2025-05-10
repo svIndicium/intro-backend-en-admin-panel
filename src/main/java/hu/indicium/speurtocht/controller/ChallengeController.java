@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.ByteArrayInputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
@@ -357,64 +358,78 @@ public class ChallengeController {
 //				.body(new ByteArrayResource(Arrays.copyOfRange(content, (int) start, (int) (end + 1))));
 //	}
 
-	@Secured("ADMIN")
-	@Operation(summary = "Get a file from a Crazy 88 submission")
-	@GetMapping("/submissions/{fileId}/file")
-	@Transactional
-	public ResponseEntity<InputStreamResource> getContent(
-			@PathVariable UUID fileId,
-			@RequestHeader(value = "Range", required = false) String rangeHeader
-	) throws IOException {
-		// Retrieve the file from the database
-		FileSubmission file = this.fileStorageService.getSubmissionFile(fileId);
+//	@Secured("ADMIN")
+@Operation(summary = "Get a file from a Crazy 88 submission")
+@GetMapping("/submissions/{fileId}/file")
+@Transactional
+public ResponseEntity<InputStreamResource> getContent(
+		@PathVariable UUID fileId,
+		@RequestHeader(value = "Range", required = false) String rangeHeader
+) throws IOException {
+	// Retrieve the file from the database
+	FileSubmission file = this.fileStorageService.getSubmissionFile(fileId);
 
-		try {
-			long fileSize = this.fileStorageService.getFileSize(fileId.toString());
+	try {
+		long fileSize = this.fileStorageService.getFileSize(fileId.toString());
+		// Set the chunk size to 8MB (adjust as needed: 1MB or 8MB)
+		final int CHUNK_SIZE = 8 * 1024 * 1024; // 8MB in bytes
 
-			// If no range is specified, return the full file
-			if (rangeHeader == null) {
-				InputStream inputStream = this.fileStorageService.getFileOptimized(fileId.toString());
-				HttpHeaders headers = new HttpHeaders();
-				headers.setContentType(MediaType.parseMediaType(file.getType()));
-				headers.setContentLength(fileSize);
-				return ResponseEntity.ok()
-						.headers(headers)
-						.body(new InputStreamResource(inputStream));
-			}
+		// Initialize start and end positions
+		long start = 0;
+		long end = fileSize - 1;
 
-			// Extract the range values from the header (bytes=0-500)
+		// Process range header if present
+		if (rangeHeader != null && !rangeHeader.isEmpty()) {
 			String[] ranges = rangeHeader.replace("bytes=", "").split("-");
-			long start = Long.parseLong(ranges[0]);
-			long end = ranges.length > 1 && !ranges[1].isEmpty() ? Long.parseLong(ranges[1]) : fileSize - 1;
+			start = Long.parseLong(ranges[0]);
 
-			// Adjust the end value if it's greater than the file size
-			if (end >= fileSize) {
-				end = fileSize - 1;
+			// If end is specified in the range, use it; otherwise calculate based on start + chunk size
+			if (ranges.length > 1 && !ranges[1].isEmpty()) {
+				end = Long.parseLong(ranges[1]);
+			} else {
+				// Limit the chunk size by calculating end position
+				end = Math.min(start + CHUNK_SIZE - 1, fileSize - 1);
 			}
-
-			long contentLength = end - start + 1;
-//			long contentLength = end - start;
-
-			// Get the InputStream for the requested byte range
-			InputStream inputStream = this.fileStorageService.getFileOptimized(fileId.toString());
-			inputStream.skip(start); // Skip to the starting byte
-
-			HttpHeaders responseHeaders = new HttpHeaders();
-			responseHeaders.set("Content-Type", file.getType());
-			responseHeaders.set("Content-Length", String.valueOf(contentLength));
-			responseHeaders.set("Accept-Ranges", "bytes");
-			responseHeaders.set("Content-Range", "bytes " + start + "-" + end + "/" + fileSize);
-
-			// Return the partial content response
-			return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
-					.headers(responseHeaders)
-					.body(new InputStreamResource(inputStream));
-		} catch (IOException e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		} else {
+			// If no range specified, return only the first chunk
+			end = Math.min(CHUNK_SIZE - 1, fileSize - 1);
 		}
+
+		// Calculate content length
+		long contentLength = end - start + 1;
+
+		// Get the input stream and skip to the starting position
+		InputStream inputStream = this.fileStorageService.getFileOptimized(fileId.toString());
+		inputStream.skip(start);
+
+		// Create a limited input stream that will only read the requested chunk
+		// This prevents reading beyond the requested range
+		InputStream limitedInputStream = new LimitedInputStream(inputStream, contentLength);
+
+		HttpHeaders responseHeaders = new HttpHeaders();
+
+		// Set appropriate content type based on the file
+		responseHeaders.set("Content-Type", file.getType());
+		responseHeaders.set("Content-Length", String.valueOf(contentLength));
+		responseHeaders.set("Accept-Ranges", "bytes");
+		responseHeaders.set("Content-Range", "bytes " + start + "-" + end + "/" + fileSize);
+
+		// Return 200 OK for full file, 206 Partial Content for chunks
+		HttpStatus status = (start == 0 && end == fileSize - 1)
+				? HttpStatus.OK
+				: HttpStatus.PARTIAL_CONTENT;
+
+		return ResponseEntity.status(status)
+				.headers(responseHeaders)
+				.body(new InputStreamResource(limitedInputStream));
+	} catch (IOException e) {
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 	}
+}
 
 
 
 
 }
+
+

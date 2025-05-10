@@ -32,6 +32,7 @@ public class SecurityConfig {
 		http.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(request -> request.requestMatchers("/swagger-ui/**", "/swagger-ui.html","/v3/api-docs/**").permitAll())
 				.authorizeHttpRequests(request -> request.requestMatchers("/pictures/{pictureId}/file", "/pictures/{pictureId}/thumbnail").permitAll())
+				.authorizeHttpRequests(request -> request.requestMatchers("/challenges/submissions/{fileId}/file").permitAll())
 				.authorizeHttpRequests(request -> request.requestMatchers("/authenticate").permitAll())
 				.authorizeHttpRequests(request -> request.anyRequest().authenticated())
 				.sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
