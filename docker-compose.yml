@@ -8,3 +8,8 @@ services:
       POSTGRES_PASSWORD: kaasbroodje
     ports:
       - "5432:5432"
+  ffmpeg-container:
+    image: jrottenberg/ffmpeg:6-ubuntu
+    container_name: ffmpeg-container
+    volumes:
+      - ./data:/data  # Mount the same data directory to access the video files

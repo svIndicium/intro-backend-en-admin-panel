@@ -8,6 +8,7 @@ import hu.indicium.speurtocht.domain.FileSubmission;
 import hu.indicium.speurtocht.domain.PictureFile;
 import hu.indicium.speurtocht.domain.Team;
 import hu.indicium.speurtocht.security.AuthUtils;
+import hu.indicium.speurtocht.service.FileStorageService;
 import hu.indicium.speurtocht.service.PictureService;
 import hu.indicium.speurtocht.service.TeamService;
 import hu.indicium.speurtocht.service.exceptions.AlreadyApprovedException;
@@ -29,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
@@ -49,6 +51,7 @@ public class PictureController {
 	private AuthUtils authUtils;
 
 	private PictureService pictureService;
+	private FileStorageService fileStorageService;
 	private TeamService teamService;
 
 	@Secured("ADMIN")
@@ -78,7 +81,7 @@ public class PictureController {
 	@Operation(summary = "Get image file of team's submission")
 	@GetMapping("/{pictureId}/submission")
 	@Transactional
-	public ResponseEntity<byte[]> getSubmissionContent(@PathVariable Long pictureId) {
+	public ResponseEntity<byte[]> getSubmissionContent(@PathVariable Long pictureId) throws IOException {
 		Team team = this.authUtils.getTeam();
 		HttpHeaders responseHeaders = new HttpHeaders();
 		responseHeaders.setCacheControl(CacheControl.maxAge(Duration.of(2, ChronoUnit.HOURS)));
@@ -87,7 +90,7 @@ public class PictureController {
 		return ResponseEntity
 				.ok()
 				.headers(responseHeaders)
-				.body(file.getContent());
+				.body(this.fileStorageService.getFile(file.getId().toString()));
 	}
 
 	@Operation(summary = "Get thumbnail of a particular location")
@@ -162,13 +165,13 @@ public class PictureController {
 	@Operation(summary = "Get a submission's submitted image")
 	@GetMapping("/{pictureId}/teams/{teamId}/file")
 	@Transactional
-	public ResponseEntity<byte[]> getContent(@PathVariable Long pictureId, @PathVariable UUID teamId) {
+	public ResponseEntity<byte[]> getContent(@PathVariable Long pictureId, @PathVariable UUID teamId) throws IOException {
 		HttpHeaders responseHeaders = new HttpHeaders();
 		FileSubmission file = this.pictureService.getSubmissionFile(this.teamService.getTeam(teamId), pictureId);
 		responseHeaders.set("Content-Type", file.getType());
 		return ResponseEntity
 				.ok()
 				.headers(responseHeaders)
-				.body(file.getContent());
+				.body(this.fileStorageService.getFile(file.getId().toString()));
 	}
 }

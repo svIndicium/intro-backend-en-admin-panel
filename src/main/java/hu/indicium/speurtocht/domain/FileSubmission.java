@@ -8,6 +8,9 @@ import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.util.UUID;
 
 @Entity
@@ -23,21 +26,24 @@ public class FileSubmission {
 
 	private String type;
 
-	@Lob @Basic(fetch = FetchType.LAZY)
-	private byte[] content;
+//	@Lob
+//	private Blob content;  // Use Blob for large objects
 
 	public FileSubmission(MultipartFile file) throws IOException {
 		this.type = file.getContentType();
-		this.content = file.getBytes();
 	}
 
-	public FileSubmission(String type, MultipartFile file) throws IOException {
+	public FileSubmission(String type) {
 		this.type = type;
-		this.content = file.getBytes();
 	}
 
-	public FileSubmission(String type, byte[] content) {
-		this.type = type;
-		this.content = content;
-	}
+//	public FileSubmission(String type, InputStream content) {
+//		this.type = type;
+//		this.content = (Blob) content;
+//	}
+//
+//	// Get an InputStream from the Blob
+//	public InputStream getInputStream() throws IOException, SQLException {
+//		return content.getBinaryStream();
+//	}
 }

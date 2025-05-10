@@ -38,6 +38,19 @@ export function fetchWithAuth(url: string): Promise<any> {
 
 }
 
+export function streamWithAuth(url: string, extraHeader: Object): Promise<any> {
+    return fetch(
+        url,
+        {
+            headers: {"Authorization": "Bearer " + localStorage.getItem("accessToken"), ...extraHeader },
+        })
+        .then(async (e) => {
+            if (e.status === 401) await router.push({ path: '/' })
+            return e
+        })
+
+}
+
 export function sendForm(url: string, formdata: HTMLFormElement, method: string): Promise<Response> {
     const entries = new FormData(formdata).entries();
     const data = Object.fromEntries(entries);
