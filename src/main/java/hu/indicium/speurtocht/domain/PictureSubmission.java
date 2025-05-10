@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Entity
 //@IdClass(PictureSubmissionId.class)
@@ -26,15 +27,13 @@ public class PictureSubmission {
 
 	private SubmissionState status;
 	private String deniedReason;
+	private UUID fileId;
 
-	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private FileSubmission fileSubmission;
-
-	public PictureSubmission(Team team, Picture picture, MultipartFile file) throws IOException {
+	public PictureSubmission(Team team, Picture picture, UUID fileId) {
 		this.team = team;
 		this.picture = picture;
 		this.status = SubmissionState.PENDING;
-		this.fileSubmission = new FileSubmission(file);
+		this.fileId = fileId;
 	}
 
 	public void approve() {

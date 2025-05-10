@@ -16,6 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +26,7 @@ public class PictureService {
 	private PictureRepository repository;
 	private PictureSubmissionRepository submissionRepository;
 	private FileSubmissionRepository fileSubmissionRepository;
+	private FileStorageService fileStorageService;
 
 	private static final int maxImagePixelsOnOneAxis = 96;
 
@@ -54,7 +56,8 @@ public class PictureService {
 
 	public PictureSubmission createSubmission(Team team, Picture picture, MultipartFile file) throws IOException, AlreadyApprovedException {
 		if (this.submissionRepository.existsByTeamAndPictureAndStatusIn(team, picture, List.of(SubmissionState.PENDING, SubmissionState.APPROVED))) throw new AlreadyApprovedException();
-		return this.submissionRepository.save(new PictureSubmission(team, picture, file));
+		FileSubmission fileLocation = this.fileStorageService.saveFile(file);
+		return this.submissionRepository.save(new PictureSubmission(team, picture, fileLocation.getId()));
 	}
 
 	public long getTeamPoints(Team team) {
@@ -105,7 +108,8 @@ public class PictureService {
 	}
 
 	public FileSubmission getSubmissionFile(Team team, Long id) {
-		return this.submissionRepository.getReferenceById(new PictureSubmissionId(team, this.getPicture(id))).getFileSubmission();
+		UUID fileId = this.submissionRepository.getReferenceById(new PictureSubmissionId(team, this.getPicture(id))).getFileId();
+		return this.fileStorageService.getSubmissionFile(fileId);
 	}
 
 	public List<PictureSubmission> getPending() {

@@ -15,7 +15,8 @@ fetchJsonWithAuth<LeaderboardEntry[]>("/api/teams/leaderboard")
       <tr>
         <th scope="col">Rank</th>
         <th scope="col">Team Name</th>
-        <th scope="col">Crazy 88 Score</th>
+        <th scope="col">Score</th>
+        <th scope="col">Crazy 88</th>
         <th scope="col">Pictures</th>
       </tr>
       </thead>
@@ -25,11 +26,12 @@ fetchJsonWithAuth<LeaderboardEntry[]>("/api/teams/leaderboard")
         <th scope="row">
           <router-link :to="`/admin/team/${team.id}`">{{team.teamname}}</router-link>
         </th>
-        <td>{{team.points.challengePoints}}</td>
-        <td>{{team.points.picturesApproved}}<span>/25</span></td>
+        <td>{{team.score.challengePoints}} x {{(1 + (0.1 * team.score.picturesApproved)).toFixed(1)}} = {{Math.ceil(team.score.points)}}</td>
+        <td>{{team.score.challengePoints}}</td>
+        <td>{{team.score.picturesApproved}}<span>/25</span></td>
       </tr>
       <tr class="create-new">
-        <td colspan="4">
+        <td colspan="5">
           <router-link to="/admin/team">create team</router-link>
         </td>
       </tr>

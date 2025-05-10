@@ -6,7 +6,7 @@ import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
 
   const router = useRouter();
 
-  const team = ref<TeamMeta>()
+  const team = ref<TeamMeta | null>(null)
   fetchJsonWithAuth<TeamMeta>(`/api/teams/${router.currentRoute.value.params.id}`)
     .then(async e => {
       for (let picture of e.pictures) {
@@ -27,7 +27,7 @@ import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
 </script>
 
 <template>
-  <main>
+  <main v-if="team != null">
     <header class="top-section">
       <router-link to="/admin/home">&lt;</router-link>
       <h1>{{team.meta.teamName}}</h1>
@@ -35,7 +35,7 @@ import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
     </header>
     <div class="submissions-grid">
       <section aria-label="picture locations" >
-        <h1>Bingo {{team.meta.points.picturesApproved}}/25</h1>
+        <h1>Bingo {{team.meta.score.picturesApproved}}/25</h1>
         <div class="pictures">
           <ul class="picture-grid" aria-label="list of pictures">
             <li v-for="picture in team.pictures">
@@ -54,7 +54,7 @@ import {fetchJsonWithAuth, fetchWithAuth} from "../../lib/fetcher";
 
       </section>
       <section aria-label="challenges">
-        <h1>Crazy 88: {{team.meta.points.challengePoints}}</h1>
+        <h1>Crazy 88: {{team.meta.score.challengePoints}}</h1>
         <table id="challenge-table">
           <thead>
           <tr>

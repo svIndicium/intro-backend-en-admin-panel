@@ -1,9 +1,10 @@
 export interface LeaderboardEntry {
     id: string,
     teamname: string,
-    points: {
+    score: {
         challengePoints: number,
-        picturesApproved: number
+        picturesApproved: number,
+        points: number
     }
 }
 
@@ -44,9 +45,10 @@ export interface Challenge {
 export interface TeamMeta {
     meta: {
         teamName: string,
-        points: {
+        score: {
             challengePoints: number,
-            picturesApproved: number
+            picturesApproved: number,
+            points: number,
         }
     };
     joinCode: string;

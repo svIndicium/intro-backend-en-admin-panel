@@ -7,6 +7,7 @@ import hu.indicium.speurtocht.security.service.impl.AuthenticationServiceImpl;
 import hu.indicium.speurtocht.service.ChallengeService;
 import hu.indicium.speurtocht.service.PictureService;
 import hu.indicium.speurtocht.service.TeamService;
+import hu.indicium.speurtocht.utils.ScoreCalculator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -45,7 +46,13 @@ public class TeamController {
 		return this.service
 				.getAll()
 				.stream()
-				.map(team -> new LeaderboardDTO(team.getId(), team.getName(), new PointsDTO(this.challengeService.getTeamPoints(team), this.pictureService.getTeamPoints(team))))
+				.map(team -> {
+					long challengePoints = this.challengeService.getTeamPoints(team);
+					long picturesApproved = this.pictureService.getTeamPoints(team);
+					PointsDTO score = new PointsDTO(challengePoints, picturesApproved, ScoreCalculator.calculatedScore(challengePoints, picturesApproved));
+
+					return new LeaderboardDTO(team.getId(), team.getName(), score);
+				})
 				.sorted(new LeaderboardComparator())
 				.toList();
 	}
@@ -58,20 +65,20 @@ public class TeamController {
 	@GetMapping("/score")
 	public ScoreDTO points() {
 		Team team = this.authUtils.getTeam();
-		return new ScoreDTO(team.getName(), new PointsDTO(this.challengeService.getTeamPoints(team), this.pictureService.getTeamPoints(team)));
+		long challengePoints = this.challengeService.getTeamPoints(team);
+		long picturesApproved = this.pictureService.getTeamPoints(team);
+		return new ScoreDTO(team.getName(), new PointsDTO(challengePoints, picturesApproved, ScoreCalculator.calculatedScore(challengePoints, picturesApproved)));
 	}
 
 	private static class LeaderboardComparator implements Comparator<LeaderboardDTO> {
 
 		@Override
 		public int compare(LeaderboardDTO o1, LeaderboardDTO o2) {
-			PointsDTO p1 = o1.points();
-			PointsDTO p2 = o2.points();
-			if (p1.challengePoints() == p2.challengePoints()) {
-				return (int) (p2.picturesApproved() - p1.picturesApproved());
-			} else {
-				return (int) (p2.challengePoints() - p1.challengePoints());
-			}
+			PointsDTO p1 = o1.score();
+			PointsDTO p2 = o2.score();
+
+			return (int) (p2.points() - p1.points());
+
 		}
 	}
 
@@ -94,7 +101,10 @@ public class TeamController {
 	@GetMapping("/{id}")
 	public TeamDTO getTeam(@PathVariable UUID id) {
 		Team team = this.service.getTeam(id);
-		ScoreDTO meta = new ScoreDTO(team.getName(), new PointsDTO(this.challengeService.getTeamPoints(team), this.pictureService.getTeamPoints(team)));
+		long challengePoints = this.challengeService.getTeamPoints(team);
+		long picturesApproved = this.pictureService.getTeamPoints(team);
+		ScoreDTO meta = new ScoreDTO(team.getName(), new PointsDTO(challengePoints, picturesApproved, ScoreCalculator.calculatedScore(challengePoints, picturesApproved)));
+
 		String joinCode = team.getJoinCode();
 		Collection<PictureSubmissionDTO> pictures = this.pictureService.getTeamsPictures(team).values();
 		Collection<ChallengeStatusDTO> challenges = this.challengeService.getTeamChallenges(team).values();
