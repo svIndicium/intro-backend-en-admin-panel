@@ -361,7 +361,6 @@ public class ChallengeController {
 //	@Secured("ADMIN")
 @Operation(summary = "Get a file from a Crazy 88 submission")
 @GetMapping("/submissions/{fileId}/file")
-@Transactional
 public ResponseEntity<InputStreamResource> getContent(
 		@PathVariable UUID fileId,
 		@RequestHeader(value = "Range", required = false) String rangeHeader
@@ -372,7 +371,7 @@ public ResponseEntity<InputStreamResource> getContent(
 	try {
 		long fileSize = this.fileStorageService.getFileSize(fileId.toString());
 		// Set the chunk size to 8MB (adjust as needed: 1MB or 8MB)
-		final int CHUNK_SIZE = 8 * 1024 * 1024; // 8MB in bytes
+		final int CHUNK_SIZE = 2 * 1024 * 1024; // 8MB in bytes
 
 		// Initialize start and end positions
 		long start = 0;
@@ -423,6 +422,7 @@ public ResponseEntity<InputStreamResource> getContent(
 				.headers(responseHeaders)
 				.body(new InputStreamResource(limitedInputStream));
 	} catch (IOException e) {
+		e.printStackTrace();
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 	}
 }
